@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Deployment Script for Panhandler
-# Handles deployment to different environments (development, staging, production)
+# Handles Helm-based deployment to Kubernetes environments (development, staging, production)
 
 set -euo pipefail
 
@@ -40,13 +40,13 @@ usage() {
     cat << EOF
 Usage: $0 [ENVIRONMENT] [OPTIONS]
 
-Deploy Panhandler to specified environment.
+Deploy Panhandler to Kubernetes using Helm.
 
 ENVIRONMENTS:
-    development         Deploy to development environment
-    staging             Deploy to staging environment
-    production          Deploy to production environment
-    local               Deploy locally with docker-compose
+    development         Deploy to development namespace
+    staging             Deploy to staging namespace  
+    production          Deploy to production namespace
+    local               Deploy to local Kubernetes cluster
 
 OPTIONS:
     --skip-build        Skip building before deployment
@@ -54,12 +54,15 @@ OPTIONS:
     --dry-run           Show what would be deployed without executing
     --force             Force deployment without confirmation
     --version VERSION   Deploy specific version
+    --namespace NAME    Override default namespace
+    --context NAME      Use specific kubectl context
     -h, --help          Show this help message
 
 EXAMPLES:
-    $0 development                      # Deploy to development
+    $0 development                      # Deploy to development namespace
     $0 production --version v1.2.3     # Deploy specific version to production
     $0 staging --dry-run               # Dry run for staging deployment
+    $0 local --context minikube        # Deploy to local minikube cluster
 EOF
 }
 
@@ -70,6 +73,8 @@ SKIP_PUSH=false
 DRY_RUN=false
 FORCE=false
 VERSION=""
+NAMESPACE="panhandler"
+KUBE_CONTEXT=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -98,6 +103,14 @@ while [[ $# -gt 0 ]]; do
             VERSION="$2"
             shift 2
             ;;
+        --namespace)
+            NAMESPACE="$2"
+            shift 2
+            ;;
+        --context)
+            KUBE_CONTEXT="$2"
+            shift 2
+            ;;
         -h|--help)
             usage
             exit 0
@@ -116,29 +129,42 @@ fi
 # Set environment-specific configuration
 case "$ENVIRONMENT" in
     development)
-        DOCKER_COMPOSE_FILE="docker-compose.yml"
+        HELM_VALUES_FILE="charts/panhandler/values-dev.yaml"
         REGISTRY_TAG="dev"
+        DEFAULT_NAMESPACE="panhandler-dev"
+        RELEASE_NAME="panhandler-dev"
         HEALTH_CHECK_URL="http://localhost:3001/health"
         ;;
     staging)
-        DOCKER_COMPOSE_FILE="docker-compose.staging.yml"
+        HELM_VALUES_FILE="charts/panhandler/values-dev.yaml"  # Use dev values for staging
         REGISTRY_TAG="staging"
+        DEFAULT_NAMESPACE="panhandler-staging"
+        RELEASE_NAME="panhandler-staging"
         HEALTH_CHECK_URL="https://staging-api.panhandler.ai/health"
         ;;
     production)
-        DOCKER_COMPOSE_FILE="docker-compose.prod.yml"
+        HELM_VALUES_FILE="charts/panhandler/values-prod.yaml"
         REGISTRY_TAG="latest"
+        DEFAULT_NAMESPACE="panhandler-production"
+        RELEASE_NAME="panhandler-prod"
         HEALTH_CHECK_URL="https://api.panhandler.ai/health"
         ;;
     local)
-        DOCKER_COMPOSE_FILE="docker-compose.yml"
+        HELM_VALUES_FILE="charts/panhandler/values-dev.yaml"
         REGISTRY_TAG="local"
+        DEFAULT_NAMESPACE="panhandler-local"
+        RELEASE_NAME="panhandler-local"
         HEALTH_CHECK_URL="http://localhost:3001/health"
         ;;
     *)
         error "Unknown environment: $ENVIRONMENT"
         ;;
 esac
+
+# Set namespace (use override if provided)
+if [[ -z "$NAMESPACE" ]]; then
+    NAMESPACE="$DEFAULT_NAMESPACE"
+fi
 
 # Get version information
 get_version() {
@@ -156,7 +182,17 @@ DEPLOY_VERSION=$(get_version)
 check_prerequisites() {
     log "Checking deployment prerequisites..."
     
-    # Check Docker
+    # Check Helm
+    if ! command -v helm &> /dev/null; then
+        error "Helm is not installed. Please install Helm 3.x"
+    fi
+    
+    # Check kubectl
+    if ! command -v kubectl &> /dev/null; then
+        error "kubectl is not installed"
+    fi
+    
+    # Check Docker (needed for building)
     if ! command -v docker &> /dev/null; then
         error "Docker is not installed"
     fi
@@ -165,15 +201,33 @@ check_prerequisites() {
         error "Docker daemon is not running"
     fi
     
-    # Check environment file
-    local env_file="env.${ENVIRONMENT}"
-    if [[ ! -f "$env_file" ]]; then
-        warning "Environment file $env_file not found, using defaults"
+    # Set kubectl context if provided
+    if [[ -n "$KUBE_CONTEXT" ]]; then
+        log "Setting kubectl context to $KUBE_CONTEXT..."
+        kubectl config use-context "$KUBE_CONTEXT"
     fi
     
-    # Check Docker Compose file
-    if [[ ! -f "$DOCKER_COMPOSE_FILE" ]]; then
-        error "Docker Compose file $DOCKER_COMPOSE_FILE not found"
+    # Test kubectl connectivity
+    if ! kubectl cluster-info &> /dev/null; then
+        error "Cannot connect to Kubernetes cluster. Check your kubectl configuration"
+    fi
+    
+    # Check Helm chart
+    if [[ ! -f "charts/panhandler/Chart.yaml" ]]; then
+        error "Helm chart not found at charts/panhandler/Chart.yaml"
+    fi
+    
+    # Check Helm values file
+    if [[ ! -f "$HELM_VALUES_FILE" ]]; then
+        error "Helm values file $HELM_VALUES_FILE not found"
+    fi
+    
+    # Check if namespace exists, create if it doesn't
+    if ! kubectl get namespace "$NAMESPACE" &> /dev/null; then
+        log "Creating namespace $NAMESPACE..."
+        if [[ "$DRY_RUN" != "true" ]]; then
+            kubectl create namespace "$NAMESPACE"
+        fi
     fi
     
     success "Prerequisites check passed"
@@ -214,49 +268,95 @@ push_images() {
 }
 
 deploy_environment() {
-    log "Deploying to $ENVIRONMENT environment..."
-    
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log "Would run: docker-compose -f $DOCKER_COMPOSE_FILE up -d"
-        log "Would set: VERSION=$DEPLOY_VERSION"
-        log "Would set: GIT_COMMIT=$GIT_COMMIT"
-        return
-    fi
-    
-    # Set environment variables for docker-compose
-    export VERSION="$DEPLOY_VERSION"
-    export GIT_COMMIT="$GIT_COMMIT"
-    export ENVIRONMENT="$ENVIRONMENT"
-    
-    # Deploy with docker-compose
-    docker-compose -f "$DOCKER_COMPOSE_FILE" up -d
-    
-    success "Deployment completed"
+  log "Deploying to $ENVIRONMENT environment (namespace: $NAMESPACE)..."
+  
+  # Prepare Helm command
+  local helm_cmd="helm upgrade --install $RELEASE_NAME ./charts/panhandler"
+  helm_cmd="$helm_cmd --namespace $NAMESPACE"
+  helm_cmd="$helm_cmd --values $HELM_VALUES_FILE"
+  helm_cmd="$helm_cmd --set agents.image.tag=$DEPLOY_VERSION"
+  helm_cmd="$helm_cmd --set web.image.tag=$DEPLOY_VERSION"
+  helm_cmd="$helm_cmd --set-string global.gitCommit=$GIT_COMMIT"
+  helm_cmd="$helm_cmd --wait --timeout=10m"
+  
+  if [[ "$DRY_RUN" == "true" ]]; then
+      log "Would run: $helm_cmd --dry-run"
+      helm upgrade --install "$RELEASE_NAME" ./charts/panhandler \
+          --namespace "$NAMESPACE" \
+          --values "$HELM_VALUES_FILE" \
+          --set agents.image.tag="$DEPLOY_VERSION" \
+          --set web.image.tag="$DEPLOY_VERSION" \
+          --set-string global.gitCommit="$GIT_COMMIT" \
+          --dry-run --debug
+      return
+  fi
+  
+  # Update Helm dependencies
+  log "Updating Helm dependencies..."
+  helm dependency update ./charts/panhandler
+  
+  # Deploy with Helm
+  log "Running Helm deployment..."
+  helm upgrade --install "$RELEASE_NAME" ./charts/panhandler \
+      --namespace "$NAMESPACE" \
+      --values "$HELM_VALUES_FILE" \
+      --set agents.image.tag="$DEPLOY_VERSION" \
+      --set web.image.tag="$DEPLOY_VERSION" \
+      --set-string global.gitCommit="$GIT_COMMIT" \
+      --wait --timeout=10m
+  
+  success "Deployment completed"
 }
 
 wait_for_health() {
-    log "Waiting for services to become healthy..."
+    log "Waiting for pods to become ready..."
     
     if [[ "$DRY_RUN" == "true" ]]; then
+        log "Would check pod readiness in namespace: $NAMESPACE"
         log "Would check health at: $HEALTH_CHECK_URL"
         return
     fi
     
-    local max_attempts=30
-    local attempt=1
+    # Wait for pods to be ready
+    log "Waiting for all pods to be ready..."
+    if ! kubectl wait --for=condition=ready pod \
+        --selector=app.kubernetes.io/instance="$RELEASE_NAME" \
+        --namespace="$NAMESPACE" \
+        --timeout=300s; then
+        error "Pods failed to become ready within 5 minutes"
+    fi
     
-    while [[ $attempt -le $max_attempts ]]; do
-        if curl -sSf "$HEALTH_CHECK_URL" > /dev/null 2>&1; then
-            success "Health check passed"
-            return
-        fi
+    # Check deployment status
+    log "Checking deployment status..."
+    kubectl get pods,services,ingress \
+        --namespace="$NAMESPACE" \
+        --selector=app.kubernetes.io/instance="$RELEASE_NAME"
+    
+    # Optional: Try health check endpoint if available
+    if command -v curl &> /dev/null; then
+        log "Attempting health check..."
+        local max_attempts=6
+        local attempt=1
         
-        log "Health check attempt $attempt/$max_attempts failed, retrying in 10 seconds..."
-        sleep 10
-        ((attempt++))
-    done
+        while [[ $attempt -le $max_attempts ]]; do
+            if curl -sSf "$HEALTH_CHECK_URL" > /dev/null 2>&1; then
+                success "Health check passed at $HEALTH_CHECK_URL"
+                break
+            fi
+            
+            log "Health check attempt $attempt/$max_attempts failed, retrying in 10 seconds..."
+            sleep 10
+            ((attempt++))
+        done
+        
+        if [[ $attempt -gt $max_attempts ]]; then
+            warning "Health check failed, but pods are ready. Service may not be externally accessible yet."
+        fi
+    else
+        log "curl not available, skipping HTTP health check"
+    fi
     
-    error "Health check failed after $max_attempts attempts"
+    success "Services are ready"
 }
 
 post_deploy_actions() {
@@ -264,16 +364,26 @@ post_deploy_actions() {
     
     if [[ "$DRY_RUN" == "true" ]]; then
         log "Would run post-deployment actions"
+        log "Would run database migrations if needed"
         return
     fi
     
     # Run database migrations if needed
     if [[ "$ENVIRONMENT" != "local" ]]; then
         log "Running database migrations..."
-        # This would typically connect to the deployed service to run migrations
-        # For now, we'll just log the action
-        log "Database migrations would be run here"
+        # Run migrations using a Kubernetes job or by executing in a pod
+        if kubectl get pod --namespace="$NAMESPACE" --selector=app.kubernetes.io/component=agents --field-selector=status.phase=Running -o name | head -1 | grep -q pod; then
+            local agent_pod=$(kubectl get pod --namespace="$NAMESPACE" --selector=app.kubernetes.io/component=agents --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
+            log "Running migrations in pod: $agent_pod"
+            kubectl exec -n "$NAMESPACE" "$agent_pod" -- bun run migrate
+        else
+            warning "No running agent pods found, skipping database migrations"
+        fi
     fi
+    
+    # Show Helm release status
+    log "Checking Helm release status..."
+    helm status "$RELEASE_NAME" --namespace="$NAMESPACE"
     
     success "Post-deployment actions completed"
 }
@@ -281,10 +391,15 @@ post_deploy_actions() {
 show_deployment_info() {
     log "Deployment information:"
     echo "  Environment: $ENVIRONMENT"
+    echo "  Namespace: $NAMESPACE"
+    echo "  Release Name: $RELEASE_NAME"
     echo "  Version: $DEPLOY_VERSION"
     echo "  Git Commit: ${GIT_COMMIT:0:7}"
+    echo "  Helm Values: $HELM_VALUES_FILE"
     echo "  Health Check: $HEALTH_CHECK_URL"
-    echo "  Docker Compose: $DOCKER_COMPOSE_FILE"
+    if [[ -n "$KUBE_CONTEXT" ]]; then
+        echo "  Kubernetes Context: $KUBE_CONTEXT"
+    fi
 }
 
 confirm_deployment() {
@@ -319,8 +434,10 @@ main() {
     wait_for_health
     post_deploy_actions
     
-    success "Deployment to $ENVIRONMENT completed successfully!"
-    log "Services are running and healthy at: $HEALTH_CHECK_URL"
+    success "Helm deployment to $ENVIRONMENT ($NAMESPACE) completed successfully!"
+    log "Services are running in namespace: $NAMESPACE"
+    log "Release name: $RELEASE_NAME"
+    log "Health check available at: $HEALTH_CHECK_URL"
 }
 
 # Execute main function
