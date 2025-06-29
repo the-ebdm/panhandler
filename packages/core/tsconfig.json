@@ -9,20 +9,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@panhandler/types": [
-        "../types/src"
-      ]
+      "@panhandler/types": ["../types/src"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
   "references": [
     {
       "path": "../types"

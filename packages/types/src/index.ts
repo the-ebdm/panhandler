@@ -114,4 +114,4 @@ export interface APIResponse<T = unknown> {
   data?: T;
   error?: string;
   timestamp: Date;
-} 
+}

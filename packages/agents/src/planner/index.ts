@@ -11,6 +11,6 @@ export class PlannerAgent extends BaseAgent {
 
   async execute(): Promise<void> {
     // TODO: Implement planner logic
-    console.log("Planner agent executing...");
+    console.log('Planner agent executing...');
   }
-} 
+}

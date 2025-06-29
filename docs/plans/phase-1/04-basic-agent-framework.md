@@ -7,14 +7,16 @@
 **Parallel Execution**: Agent architecture components can be developed in parallel after base classes are defined
 
 ## Objective
+
 Create a comprehensive agent framework that provides the foundation for all Panhandler AI agents, including base classes, communication patterns, lifecycle management, and coordination mechanisms.
 
 ## Micro Steps
 
 ### Core Agent Architecture (Sequential - Foundation)
+
 **Execution Order**: Must be completed first, defines the fundamental agent structure
 
-1. **Base Agent Class Definition** ⚡ *Priority: Critical*
+1. **Base Agent Class Definition** ⚡ _Priority: Critical_
    - Create abstract BaseAgent class with core functionality
    - Define agent lifecycle methods (initialize, start, stop, cleanup)
    - Implement agent identification and capability registration
@@ -23,7 +25,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Dependencies**: Pubsub Infrastructure, Database Schema
    - **Output**: Foundation BaseAgent class
 
-2. **Agent Communication Interface** ⚡ *Priority: Critical*
+2. **Agent Communication Interface** ⚡ _Priority: Critical_
    - Define standardized communication protocols between agents
    - Implement event publishing and subscription mechanisms
    - Create request-response pattern for synchronous communication
@@ -33,9 +35,10 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Output**: Agent communication framework
 
 ### Agent Lifecycle Management (Parallel Group A)
+
 **Execution Order**: Can run in parallel after core architecture
 
-3. **Agent Registry System** 🔄 *Priority: High*
+3. **Agent Registry System** 🔄 _Priority: High_
    - Implement agent discovery and registration mechanisms
    - Create agent capability advertisement and querying
    - Set up agent health monitoring and status tracking
@@ -44,7 +47,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Dependencies**: Base Agent class
    - **Output**: Agent registry and discovery system
 
-4. **Agent Supervision Framework** 🔄 *Priority: High*
+4. **Agent Supervision Framework** 🔄 _Priority: High_
    - Create agent supervisor for lifecycle management
    - Implement agent restart and failure recovery mechanisms
    - Set up agent dependency management and ordering
@@ -53,7 +56,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Dependencies**: Agent registry system
    - **Output**: Agent supervision and management
 
-5. **Agent Configuration Management** 🔄 *Priority: Medium*
+5. **Agent Configuration Management** 🔄 _Priority: Medium_
    - Design configuration system for agent parameters
    - Implement environment-specific configuration loading
    - Create configuration validation and type safety
@@ -63,9 +66,10 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Output**: Agent configuration framework
 
 ### State Management and Persistence (Parallel Group B)
+
 **Execution Order**: Can run in parallel with Group A
 
-6. **Agent State Management** 🔄 *Priority: High*
+6. **Agent State Management** 🔄 _Priority: High_
    - Design stateless agent architecture with external state storage
    - Implement state serialization and deserialization
    - Create state versioning and migration capabilities
@@ -74,7 +78,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Dependencies**: Database Schema, Base Agent class
    - **Output**: Agent state management system
 
-7. **Task Queue and Processing** 🔄 *Priority: High*
+7. **Task Queue and Processing** 🔄 _Priority: High_
    - Implement task queue for agent work management
    - Create task prioritization and scheduling algorithms
    - Set up task retry and failure handling mechanisms
@@ -83,7 +87,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Dependencies**: Agent communication interface
    - **Output**: Task processing framework
 
-8. **Agent Memory and Context** 🔄 *Priority: Medium*
+8. **Agent Memory and Context** 🔄 _Priority: Medium_
    - Design agent memory system for context preservation
    - Implement conversation and task context management
    - Create memory persistence and retrieval mechanisms
@@ -93,9 +97,10 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Output**: Agent memory and context system
 
 ### AI Integration and LangChain Framework (Parallel Group C)
+
 **Execution Order**: Can run in parallel with Groups A & B
 
-9. **LangChain Integration** 🔄 *Priority: High*
+9. **LangChain Integration** 🔄 _Priority: High_
    - Integrate LangChain framework with agent architecture
    - Set up OpenRouter API client and configuration
    - Implement token usage tracking and cost monitoring
@@ -104,7 +109,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
    - **Dependencies**: Base Agent class, Agent configuration
    - **Output**: LangChain integration framework
 
-10. **AI Model Management** 🔄 *Priority: Medium*
+10. **AI Model Management** 🔄 _Priority: Medium_
     - Implement model selection and switching capabilities
     - Create model performance monitoring and optimization
     - Set up model fallback and error handling
@@ -113,7 +118,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
     - **Dependencies**: LangChain integration
     - **Output**: AI model management system
 
-11. **Prompt Management System** 🔄 *Priority: Medium*
+11. **Prompt Management System** 🔄 _Priority: Medium_
     - Create prompt template system for consistent AI interactions
     - Implement prompt versioning and A/B testing
     - Set up prompt optimization and performance tracking
@@ -123,9 +128,10 @@ Create a comprehensive agent framework that provides the foundation for all Panh
     - **Output**: Prompt management framework
 
 ### Error Handling and Resilience (Parallel Group D)
+
 **Execution Order**: Can run in parallel with all other groups
 
-12. **Error Handling Framework** 🔄 *Priority: Medium*
+12. **Error Handling Framework** 🔄 _Priority: Medium_
     - Design comprehensive error handling and classification system
     - Implement error recovery and retry strategies
     - Create error reporting and alerting mechanisms
@@ -134,7 +140,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
     - **Dependencies**: Base Agent class
     - **Output**: Error handling and recovery system
 
-13. **Circuit Breaker and Rate Limiting** 🔄 *Priority: Medium*
+13. **Circuit Breaker and Rate Limiting** 🔄 _Priority: Medium_
     - Implement circuit breaker pattern for external API calls
     - Create rate limiting for OpenRouter API usage
     - Set up adaptive throttling based on system load
@@ -144,9 +150,10 @@ Create a comprehensive agent framework that provides the foundation for all Panh
     - **Output**: Resilience and rate limiting system
 
 ### Testing and Development Tools (Parallel Group E)
+
 **Execution Order**: Can run in parallel with other groups
 
-14. **Agent Testing Framework** 🔄 *Priority: Medium*
+14. **Agent Testing Framework** 🔄 _Priority: Medium_
     - Create testing utilities for agent development
     - Implement mock agent system for integration testing
     - Set up agent behavior verification and validation
@@ -155,7 +162,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
     - **Dependencies**: All core components
     - **Output**: Agent testing and validation framework
 
-15. **Development and Debugging Tools** 🔄 *Priority: Low*
+15. **Development and Debugging Tools** 🔄 _Priority: Low_
     - Create agent introspection and debugging utilities
     - Implement agent execution tracing and profiling
     - Set up agent development console and monitoring
@@ -165,6 +172,7 @@ Create a comprehensive agent framework that provides the foundation for all Panh
     - **Output**: Development and debugging tools
 
 ## Validation Criteria
+
 - [ ] BaseAgent class provides complete foundation for agent development
 - [ ] Agent registration and discovery works across multiple agents
 - [ ] Agent communication patterns function reliably
@@ -175,20 +183,24 @@ Create a comprehensive agent framework that provides the foundation for all Panh
 - [ ] Testing framework validates agent behavior comprehensively
 
 ## Risk Mitigation
+
 - **LangChain Complexity**: Create abstraction layer to isolate LangChain dependencies
 - **State Management Complexity**: Start with simple state patterns and evolve
 - **Performance Bottlenecks**: Design for horizontal scaling from the beginning
 - **API Rate Limits**: Implement robust rate limiting and quota management
 
 ## Cost Estimation
+
 **[To be properly implemented]** - Token usage cost estimation based on OpenRouter API pricing
 
 **Target Model**: Gemini 2.5 Flash Preview 05-20 (thinking)
+
 - Input: $0.15 per 1M tokens
 - Output: $3.50 per 1M tokens
 - Context Limit: 1M tokens
 
 **Estimated Token Usage** (preliminary):
+
 - Framework architecture and base classes: ~25,000 output tokens
 - Integration and utility code: ~20,000 output tokens
 - Testing and validation code: ~15,000 output tokens
@@ -196,10 +208,12 @@ Create a comprehensive agent framework that provides the foundation for all Panh
 - Architecture analysis and design: ~15,000 input tokens
 - **Estimated Cost**: ~$0.27-0.37 (subject to actual usage patterns)
 
-*Note: This framework will be used by all agents, making it a high-value foundational investment.*
+_Note: This framework will be used by all agents, making it a high-value foundational investment._
 
 ## Next Steps
+
 Upon completion, this agent framework enables:
+
 - **Phase 2**: Core Agent Framework with advanced coordination features
 - **Phase 3**: Planning and Documentation Agents using the base framework
-- **All future agents**: Consistent architecture and reliable communication patterns 
+- **All future agents**: Consistent architecture and reliable communication patterns

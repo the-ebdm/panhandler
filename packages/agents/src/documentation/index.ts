@@ -11,6 +11,6 @@ export class DocumentationAgent extends BaseAgent {
 
   async execute(): Promise<void> {
     // TODO: Implement documentation logic
-    console.log("Documentation agent executing...");
+    console.log('Documentation agent executing...');
   }
-} 
+}

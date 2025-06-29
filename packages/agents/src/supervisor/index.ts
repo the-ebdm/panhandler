@@ -11,6 +11,6 @@ export class SupervisorAgent extends BaseAgent {
 
   async execute(): Promise<void> {
     // TODO: Implement supervisor logic
-    console.log("Supervisor agent executing...");
+    console.log('Supervisor agent executing...');
   }
-} 
+}

@@ -4,11 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "target": "ES2020",
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -23,20 +19,11 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@panhandler/types": [
-        "../types/src"
-      ]
+      "@panhandler/types": ["../types/src"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
   "references": [
     {
       "path": "../types"

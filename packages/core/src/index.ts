@@ -67,10 +67,10 @@ export abstract class BaseAgent {
   /**
    * Lifecycle hooks - subclasses can override these
    */
-  protected async onStart(): Promise<void> { }
-  protected async onStop(): Promise<void> { }
-  protected async onPause(): Promise<void> { }
-  protected async onResume(): Promise<void> { }
+  protected async onStart(): Promise<void> {}
+  protected async onStop(): Promise<void> {}
+  protected async onPause(): Promise<void> {}
+  protected async onResume(): Promise<void> {}
 }
 
 /**
@@ -78,12 +78,12 @@ export abstract class BaseAgent {
  * Will be replaced with Deepstream.io in later phases
  */
 export class EventBus {
-  private listeners: Map<string, Function[]> = new Map();
+  private listeners: Map<string, ((data: unknown) => void)[]> = new Map();
 
   /**
    * Subscribe to events
    */
-  on(eventType: string, callback: Function): void {
+  on(eventType: string, callback: (data: unknown) => void): void {
     if (!this.listeners.has(eventType)) {
       this.listeners.set(eventType, []);
     }
@@ -93,7 +93,7 @@ export class EventBus {
   /**
    * Unsubscribe from events
    */
-  off(eventType: string, callback: Function): void {
+  off(eventType: string, callback: (data: unknown) => void): void {
     const callbacks = this.listeners.get(eventType);
     if (callbacks) {
       const index = callbacks.indexOf(callback);
@@ -106,7 +106,7 @@ export class EventBus {
   /**
    * Emit an event
    */
-  emit(eventType: string, data: any): void {
+  emit(eventType: string, data: unknown): void {
     const callbacks = this.listeners.get(eventType);
     if (callbacks) {
       callbacks.forEach(callback => callback(data));
@@ -123,21 +123,21 @@ export const eventBus = new EventBus();
  * Simple logger interface
  */
 export class Logger {
-  static info(message: string, meta?: any): void {
+  static info(message: string, meta?: unknown): void {
     console.log(`[INFO] ${new Date().toISOString()}: ${message}`, meta || '');
   }
 
-  static error(message: string, error?: Error, meta?: any): void {
+  static error(message: string, error?: Error, meta?: unknown): void {
     console.error(`[ERROR] ${new Date().toISOString()}: ${message}`, error || '', meta || '');
   }
 
-  static warn(message: string, meta?: any): void {
+  static warn(message: string, meta?: unknown): void {
     console.warn(`[WARN] ${new Date().toISOString()}: ${message}`, meta || '');
   }
 
-  static debug(message: string, meta?: any): void {
+  static debug(message: string, meta?: unknown): void {
     if (process.env.NODE_ENV === 'development') {
       console.debug(`[DEBUG] ${new Date().toISOString()}: ${message}`, meta || '');
     }
   }
-} 
+}

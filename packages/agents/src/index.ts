@@ -11,5 +11,5 @@ export type {
   AgentConfig,
   ProjectPlan,
   ProjectRequirements,
-  CostEstimate
-} from '@panhandler/types'; 
+  CostEstimate,
+} from '@panhandler/types';

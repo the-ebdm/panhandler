@@ -2,6 +2,7 @@
   "name": "panhandler",
   "version": "0.1.0",
   "description": "AI Agent Orchestration System for Autonomous Software Development",
+  "type": "module",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -16,11 +17,23 @@
     "watch": "bun run --filter '@panhandler/types' build && bun run --filter '@panhandler/core' build && bun run --filter '*' dev",
     "test": "bun run --filter '*' test",
     "lint": "bun run --filter '*' lint",
+    "lint:fix": "bun run --filter '*' lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "type-check": "bun run --filter '*' type-check",
     "clean": "bun run --filter '*' clean"
   },
   "devDependencies": {
+    "@eslint/js": "^9.30.0",
     "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.35.0",
+    "@typescript-eslint/parser": "^8.35.0",
+    "eslint": "^9.30.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.6.2",
     "typescript": "^5.0.0"
   },
   "engines": {

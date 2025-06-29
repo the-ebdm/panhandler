@@ -9,23 +9,12 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@panhandler/types": [
-        "../types/src"
-      ],
-      "@panhandler/core": [
-        "../core/src"
-      ]
+      "@panhandler/types": ["../types/src"],
+      "@panhandler/core": ["../core/src"]
     }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
   "references": [
     {
       "path": "../types"

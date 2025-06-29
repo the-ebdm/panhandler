@@ -30,10 +30,12 @@ Until then you will follow the docs/PLAN.md and the given plan for the phase and
 - **Fail fast**: If something doesn't work, fix it immediately before proceeding
 
 ### 3. Time Tracking and Performance
-- **Always start with timestamps**: Mark start time in documentation before beginning work
-- **Track completion accurately**: Record end time and calculate performance delta
+- **MANDATORY: Use shell commands for timestamps**: NEVER hallucinate timestamps - always use `date -u` or equivalent shell command to get real UTC time
+- **Always start with timestamps**: Mark start time in documentation before beginning work using actual shell command output
+- **Track completion accurately**: Record end time using actual shell command and calculate performance delta
 - **Learn from patterns**: AI-assisted development is typically 50-70% faster than traditional estimates
 - **Update projections**: Use actual performance to recalibrate remaining estimates
+- **Critical Rule**: Any timestamp in documentation MUST come from a shell command execution, not from imagination
 
 ### 4. Quality-First Approach
 - **Type safety everywhere**: All code must pass TypeScript strict mode
@@ -51,10 +53,14 @@ Until then you will follow the docs/PLAN.md and the given plan for the phase and
    cat docs/plans/phase-*/[current-step].md
    ```
 
-2. **Mark step as IN PROGRESS**
+2. **Mark step as IN PROGRESS** 
+   ```bash
+   # MANDATORY: Get actual timestamp using shell command
+   date -u
+   ```
    ```markdown
    X. **Step Name** 🔄 *Priority: High* **IN PROGRESS**
-   - **Start**: [UTC timestamp]
+   - **Start**: [Copy exact output from `date -u` command above]
    ```
 
 3. **Understand dependencies**
@@ -102,12 +108,16 @@ Until then you will follow the docs/PLAN.md and the given plan for the phase and
    - Are type checks clean?
 
 2. **Update documentation**
+   ```bash
+   # MANDATORY: Get actual completion timestamp using shell command
+   date -u
+   ```
    ```markdown
    X. **Step Name** ✅ *Priority: High* **COMPLETED**
    - **Estimated Time**: 60 minutes
-   - **Actual Time**: 18 minutes ⚡ *70% faster than estimated*
-   - **Start**: 17:10 UTC
-   - **End**: 17:28 UTC
+   - **Actual Time**: [Calculate from real start/end times]
+   - **Start**: [Real timestamp from when step started]
+   - **End**: [Copy exact output from `date -u` command above]
    - **Output**: ✅ [Clear description of deliverables]
    ```
 
@@ -164,9 +174,10 @@ bun run lint            # Code quality checks
 ### Common Pitfalls to Avoid
 1. **Building without reading the plan**: Leads to incompatible implementations
 2. **Skipping time tracking**: Loses valuable performance data
-3. **Bundling multiple changes**: Makes debugging and rollback difficult
-4. **Ignoring build failures**: Broken foundations cause cascading issues
-5. **Missing dependency order**: Breaks workspace references
+3. **CRITICAL: Hallucinating timestamps**: NEVER make up timestamps - always use `date -u` shell command for real time tracking
+4. **Bundling multiple changes**: Makes debugging and rollback difficult
+5. **Ignoring build failures**: Broken foundations cause cascading issues
+6. **Missing dependency order**: Breaks workspace references
 
 ## Performance Benchmarks
 

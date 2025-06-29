@@ -7,14 +7,16 @@
 **Parallel Execution**: Some configuration steps can run in parallel after core installation
 
 ## Objective
+
 Establish the Deepstream.io pubsub system as the central communication backbone for all AI agents, ensuring reliable message delivery, event routing, and real-time coordination across the Panhandler ecosystem.
 
 ## Micro Steps
 
 ### Deepstream.io Core Setup (Sequential - Foundation)
+
 **Execution Order**: Must be completed first, establishes the pubsub foundation
 
-1. **Deepstream.io Server Installation** ⚡ *Priority: Critical*
+1. **Deepstream.io Server Installation** ⚡ _Priority: Critical_
    - Install Deepstream.io server package
    - Configure Deepstream.io server with appropriate settings
    - Set up clustering configuration for horizontal scaling
@@ -23,7 +25,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Dependencies**: Project Setup complete
    - **Output**: Deepstream.io server ready for configuration
 
-2. **Client Library Integration** ⚡ *Priority: Critical*
+2. **Client Library Integration** ⚡ _Priority: Critical_
    - Install Deepstream.io client libraries for TypeScript
    - Create connection management utilities
    - Set up connection pooling and retry logic
@@ -33,9 +35,10 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Output**: Client connection infrastructure
 
 ### Event System Architecture (Parallel Group A)
+
 **Execution Order**: Can run in parallel after core setup
 
-3. **Event Schema Definition** 🔄 *Priority: High*
+3. **Event Schema Definition** 🔄 _Priority: High_
    - Define TypeScript interfaces for all agent event types
    - Create event payload validation schemas
    - Set up event versioning system for backward compatibility
@@ -44,7 +47,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Dependencies**: Client library integration
    - **Output**: Strongly-typed event system
 
-4. **Event Routing Configuration** 🔄 *Priority: High*
+4. **Event Routing Configuration** 🔄 _Priority: High_
    - Configure event channels and namespacing strategy
    - Set up routing rules for agent-to-agent communication
    - Implement event filtering and subscription management
@@ -53,7 +56,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Dependencies**: Event schema definition
    - **Output**: Event routing system
 
-5. **Dead Letter Queue Setup** 🔄 *Priority: Medium*
+5. **Dead Letter Queue Setup** 🔄 _Priority: Medium_
    - Configure failed event handling and retry mechanisms
    - Set up dead letter queue for undeliverable messages
    - Implement event replay capabilities for error recovery
@@ -63,9 +66,10 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Output**: Fault-tolerant event delivery
 
 ### Agent Communication Patterns (Parallel Group B)
+
 **Execution Order**: Can run in parallel with Group A
 
-6. **Request-Response Pattern** 🔄 *Priority: High*
+6. **Request-Response Pattern** 🔄 _Priority: High_
    - Implement synchronous communication pattern for agent queries
    - Set up timeout handling and response correlation
    - Create typed request/response interfaces
@@ -74,7 +78,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Dependencies**: Client library integration
    - **Output**: Synchronous agent communication
 
-7. **Publish-Subscribe Pattern** 🔄 *Priority: High*
+7. **Publish-Subscribe Pattern** 🔄 _Priority: High_
    - Configure asynchronous event broadcasting system
    - Set up topic-based subscription management
    - Implement event fan-out for multiple subscribers
@@ -83,7 +87,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Dependencies**: Event schema definition
    - **Output**: Asynchronous agent communication
 
-8. **Agent Lifecycle Events** 🔄 *Priority: Medium*
+8. **Agent Lifecycle Events** 🔄 _Priority: Medium_
    - Define agent startup, shutdown, and heartbeat events
    - Implement agent registration and discovery system
    - Set up health check and monitoring events
@@ -93,9 +97,10 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Output**: Agent lifecycle management
 
 ### Persistence and Reliability (Parallel Group C)
+
 **Execution Order**: Can run in parallel with Groups A & B
 
-9. **Event Store Configuration** 🔄 *Priority: Medium*
+9. **Event Store Configuration** 🔄 _Priority: Medium_
    - Configure persistent event storage for audit and replay
    - Set up event stream archiving and retention policies
    - Implement event sourcing patterns for state reconstruction
@@ -104,7 +109,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
    - **Dependencies**: Deepstream.io server setup
    - **Output**: Persistent event storage
 
-10. **Message Durability Setup** 🔄 *Priority: Medium*
+10. **Message Durability Setup** 🔄 _Priority: Medium_
     - Configure message persistence for critical events
     - Set up acknowledgment patterns for reliable delivery
     - Implement at-least-once delivery guarantees
@@ -114,9 +119,10 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
     - **Output**: Reliable message delivery
 
 ### Monitoring and Debugging (Parallel Group D)
+
 **Execution Order**: Can run in parallel with all other groups
 
-11. **Event Monitoring Dashboard** 🔄 *Priority: Medium*
+11. **Event Monitoring Dashboard** 🔄 _Priority: Medium_
     - Set up real-time event flow visualization
     - Create metrics for message throughput and latency
     - Implement event trace logging and debugging tools
@@ -125,7 +131,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
     - **Dependencies**: Event routing configuration
     - **Output**: Event system observability
 
-12. **Performance Optimization** 🔄 *Priority: Low*
+12. **Performance Optimization** 🔄 _Priority: Low_
     - Configure connection pooling and batching strategies
     - Set up event compression for large payloads
     - Implement backpressure handling for high load
@@ -135,9 +141,10 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
     - **Output**: Optimized event system performance
 
 ### Testing and Validation (Parallel Group E)
+
 **Execution Order**: Can run in parallel with other groups
 
-13. **Event System Testing** 🔄 *Priority: Medium*
+13. **Event System Testing** 🔄 _Priority: Medium_
     - Create unit tests for event publishing and subscription
     - Set up integration tests for multi-agent communication
     - Implement end-to-end event flow testing
@@ -147,6 +154,7 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
     - **Output**: Comprehensive test suite
 
 ## Validation Criteria
+
 - [ ] Deepstream.io server starts and accepts connections
 - [ ] Agents can successfully publish and subscribe to events
 - [ ] Event routing delivers messages to correct recipients
@@ -157,20 +165,24 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
 - [ ] All event communication patterns function correctly
 
 ## Risk Mitigation
+
 - **Deepstream.io Scaling**: Plan migration to Apache Kafka if scale requirements exceed capabilities
 - **Message Ordering**: Implement sequence numbers and ordering guarantees where needed
 - **Network Partitions**: Design for eventual consistency and partition tolerance
 - **Event Schema Evolution**: Use versioned schemas to handle breaking changes gracefully
 
 ## Cost Estimation
+
 **[To be properly implemented]** - Token usage cost estimation based on OpenRouter API pricing
 
 **Target Model**: Gemini 2.5 Flash Preview 05-20 (thinking)
+
 - Input: $0.15 per 1M tokens
 - Output: $3.50 per 1M tokens
 - Context Limit: 1M tokens
 
 **Estimated Token Usage** (preliminary):
+
 - Configuration and setup code: ~18,000 output tokens
 - Event schema and interface generation: ~15,000 output tokens
 - Testing and validation code: ~12,000 output tokens
@@ -178,10 +190,12 @@ Establish the Deepstream.io pubsub system as the central communication backbone 
 - Architecture analysis and optimization: ~10,000 input tokens
 - **Estimated Cost**: ~$0.19-0.27 (subject to actual usage patterns)
 
-*Note: This is a foundational component that will be extensively used by all other agents, justifying higher initial investment.*
+_Note: This is a foundational component that will be extensively used by all other agents, justifying higher initial investment._
 
 ## Next Steps
+
 Upon completion, this pubsub infrastructure enables:
+
 - **Phase 1, Macro Step 3**: Database Schema development with event-driven updates
 - **Phase 1, Macro Step 4**: Basic Agent Framework with communication capabilities
-- **All future agents**: Reliable inter-agent communication and coordination 
+- **All future agents**: Reliable inter-agent communication and coordination

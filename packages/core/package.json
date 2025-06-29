@@ -16,7 +16,8 @@
     "dev": "bun run build --watch",
     "build": "bun run build.ts",
     "test": "bun test",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

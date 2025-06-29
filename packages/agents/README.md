@@ -48,4 +48,4 @@ All agents communicate through the centralized event system provided by `@panhan
 - `@panhandler/core` - Shared agent framework
 - `@panhandler/types` - Shared TypeScript types
 - `langchain` - LLM integration
-- `langgraph` - Workflow orchestration 
+- `langgraph` - Workflow orchestration

@@ -21,10 +21,12 @@ The essential architecture of the panhandler will be a pubsub system that will t
 All project knowledge is centralized in a curated `docs/` directory that evolves throughout the project lifecycle:
 
 **Core Documents**:
+
 - `docs/PLAN.md` - Main project plan with overview and high-level phases
 - `docs/ARCHITECTURE.md` - System architecture and design decisions
 
 **Specialized Directories**:
+
 - `docs/plans/` - Detailed plans for individual phases and macro steps
 - `docs/architecture/` - Architectural Decision Records (ADRs) and design rationale
 - `docs/guides/` - User guides and operational procedures
@@ -43,35 +45,38 @@ The structured plan will include the following:
 
 - A high level "Project Overview" section in `docs/PLAN.md` that will include the vision, the scope, and the expected deliverables.
 - A "Plan" section that will include the steps to complete the project.
-    - The plan will be broken down into a series of phases.
-    - Each phase will be broken down into a macro step.
-    - The high level plan, phases and macro steps will be the sole responsibility of the planner agent.
-    - When the planning agent submits the plan, each macro step will have a new event published to the pubsub system.
-    - The plan expander agent will take the macro step and expand it into detailed plans stored in `docs/plans/` with a list of smaller steps achievable by the developer agent. Each micro step should be atomic and as minimal in scope as possible. The plan expander agent will be be able to generate any number of micro steps from a macro step. And so must lean on producing more steps rather than overcomplicating any one step. It will also be responsible for generating an order of operations, can steps be run in parallel or do they need to be run in sequence? I want to see a tree graph of the operations and the dependencies between them.
-        - The cost estimator agent will take a each macro step with the tree of micro steps and estimate the cost of the macro step.
-        - The timeline agent will take a each macro step with the tree of micro steps and estimate the time to complete the macro step.
-        - The risk agent will take a each macro step with the tree of micro steps and estimate the risks associated with the macro step.
-        - The adjudicator agent will take the decisions of the cost estimator, timeline agent, and risk agent and decide if the macro step is worth pursuing or requires further investigation. The adjudicator uses user-configurable weights (cost, timeline, risk) to make transparent decisions rather than opaque AI judgment. Users can adjust these weights based on project priorities (e.g., startup speed vs enterprise risk-aversion) and choose from preset profiles like "Speed-focused", "Cost-conscious", or "Risk-averse". If the macro step is worth pursuing, the developer agent will be triggered to complete the micro steps via the decision tree created by the plan expander agent. This will spin up a number of developer agents to complete the micro steps in parallel albeit some steps may be dependent on other steps.
-            - The developer agent will take a micro step and complete it.
-            - The quality agent will take a micro step and assess the quality of the work.
-            - Every agent will be constantly emiting events to the pubsub system. This will be the central brain of the panhandler system. New agents will be triggered by events from the pubsub system. And some events may cancel the operation of running agents or force them to restart.
-            - The supervisor agent provides strategic oversight of the entire project, monitoring macro step performance and making high-level decisions about project direction. The frequency and autonomy of supervision scales with the user's budget through a tiered service model.
+  - The plan will be broken down into a series of phases.
+  - Each phase will be broken down into a macro step.
+  - The high level plan, phases and macro steps will be the sole responsibility of the planner agent.
+  - When the planning agent submits the plan, each macro step will have a new event published to the pubsub system.
+  - The plan expander agent will take the macro step and expand it into detailed plans stored in `docs/plans/` with a list of smaller steps achievable by the developer agent. Each micro step should be atomic and as minimal in scope as possible. The plan expander agent will be be able to generate any number of micro steps from a macro step. And so must lean on producing more steps rather than overcomplicating any one step. It will also be responsible for generating an order of operations, can steps be run in parallel or do they need to be run in sequence? I want to see a tree graph of the operations and the dependencies between them.
+    - The cost estimator agent will take a each macro step with the tree of micro steps and estimate the cost of the macro step.
+    - The timeline agent will take a each macro step with the tree of micro steps and estimate the time to complete the macro step.
+    - The risk agent will take a each macro step with the tree of micro steps and estimate the risks associated with the macro step.
+    - The adjudicator agent will take the decisions of the cost estimator, timeline agent, and risk agent and decide if the macro step is worth pursuing or requires further investigation. The adjudicator uses user-configurable weights (cost, timeline, risk) to make transparent decisions rather than opaque AI judgment. Users can adjust these weights based on project priorities (e.g., startup speed vs enterprise risk-aversion) and choose from preset profiles like "Speed-focused", "Cost-conscious", or "Risk-averse". If the macro step is worth pursuing, the developer agent will be triggered to complete the micro steps via the decision tree created by the plan expander agent. This will spin up a number of developer agents to complete the micro steps in parallel albeit some steps may be dependent on other steps.
+      - The developer agent will take a micro step and complete it.
+      - The quality agent will take a micro step and assess the quality of the work.
+      - Every agent will be constantly emiting events to the pubsub system. This will be the central brain of the panhandler system. New agents will be triggered by events from the pubsub system. And some events may cancel the operation of running agents or force them to restart.
+      - The supervisor agent provides strategic oversight of the entire project, monitoring macro step performance and making high-level decisions about project direction. The frequency and autonomy of supervision scales with the user's budget through a tiered service model.
 
 ## Tiered Supervision Model
 
 The supervisor agent operates at different intensity levels based on the money in the pan and user's cost-sensitivity:
 
 **Premium Tier**: Continuous autonomous supervision
+
 - Supervisor runs constantly, optimizing project in real-time
 - Full authority to reallocate resources, adjust priorities, and make strategic pivots
 - Proactive optimization for maximum efficiency
 
 **Standard Tier**: Periodic threshold-based supervision
+
 - Supervisor activates when weighted event thresholds are exceeded
 - Scheduled health checks (hourly/daily intervals)
 - Reactive intervention for significant issues
 
 **Budget Tier**: Emergency-only supervision
+
 - Only critical failures trigger supervisor activation
 - Basic health monitoring with user alerts
 - Manual decision-making for most issues
@@ -83,6 +88,7 @@ Each event type carries a weight (micro step failure: 10, timeline overrun >50%:
 The system handles scope creep through a smart escalation mechanism that determines whether to handle changes locally or trigger full re-planning:
 
 **Local Handling (Plan Expander Agent)**:
+
 - Additional micro steps don't affect other macro steps
 - Total effort increase <25% of original macro step estimate
 - No new dependencies introduced to other macro steps
@@ -90,6 +96,7 @@ The system handles scope creep through a smart escalation mechanism that determi
 - Timeline impact contained within current phase
 
 **Escalation to Re-planning (Supervisor → Planner)**:
+
 - Ripple effects across multiple macro steps detected
 - Effort increase >25% or new major components discovered
 - New external dependencies or technology requirements identified
@@ -97,6 +104,7 @@ The system handles scope creep through a smart escalation mechanism that determi
 - Budget/timeline impact exceeds user's risk tolerance threshold
 
 **Process Flow**:
+
 1. Developer agent detects and reports scope expansion during micro step execution
 2. Plan Expander assesses impact by mapping dependencies and estimating effort delta
 3. Decision made based on impact scope: generate additional micro steps locally or escalate
@@ -104,6 +112,7 @@ The system handles scope creep through a smart escalation mechanism that determi
 5. Re-planning loop: Planner reassesses entire project structure with new information
 
 **Safeguards**:
+
 - Scope creep accumulation tracking across the entire project
 - Automatic user notification for all scope changes, regardless of handling level
 - Cost gate triggers based on user's budget variance tolerance
@@ -134,10 +143,12 @@ The system handles scope creep through a smart escalation mechanism that determi
 ## Development Setup
 
 ### Prerequisites
+
 - [BunJS](https://bun.sh/) - JavaScript runtime and package manager
 - Git - Version control
 
 ### Quick Start
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -154,11 +165,13 @@ bun run dev
 ```
 
 ### Git Workflow
+
 - **Conventional Commits**: Use format `<type>[scope]: <description>`
 - **Pre-commit Checks**: Automatic validation for large files, sensitive data, TypeScript errors
 - **No External Dependencies**: Simple shell scripts, no Husky bullshit
 
 Example commits:
+
 ```bash
 feat: add user authentication system
 fix(api): resolve timeout issues in agent communication

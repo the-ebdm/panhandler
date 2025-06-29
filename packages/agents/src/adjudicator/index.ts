@@ -11,6 +11,6 @@ export class AdjudicatorAgent extends BaseAgent {
 
   async execute(): Promise<void> {
     // TODO: Implement adjudicator logic
-    console.log("Adjudicator agent executing...");
+    console.log('Adjudicator agent executing...');
   }
-} 
+}

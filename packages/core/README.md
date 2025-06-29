@@ -43,4 +43,4 @@ class MyAgent extends BaseAgent {
 
 - `@panhandler/types` - Shared TypeScript types
 - `langchain` - LLM integration framework
-- `langgraph` - Agent workflow orchestration 
+- `langgraph` - Agent workflow orchestration

@@ -11,6 +11,6 @@ export class EstimatorAgent extends BaseAgent {
 
   async execute(): Promise<void> {
     // TODO: Implement estimator logic
-    console.log("Estimator agent executing...");
+    console.log('Estimator agent executing...');
   }
-} 
+}

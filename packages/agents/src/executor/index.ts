@@ -11,6 +11,6 @@ export class ExecutorAgent extends BaseAgent {
 
   async execute(): Promise<void> {
     // TODO: Implement executor logic
-    console.log("Executor agent executing...");
+    console.log('Executor agent executing...');
   }
-} 
+}

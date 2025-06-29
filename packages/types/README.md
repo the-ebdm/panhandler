@@ -9,28 +9,33 @@ This package provides a centralized collection of TypeScript types, interfaces, 
 ## Type Categories
 
 ### Core Types
+
 - `AgentConfig` - Configuration for individual agents
 - `AgentState` - Agent lifecycle and status types
 - `EventPayload` - Event system message types
 - `SystemConfig` - Global system configuration
 
 ### Project Types
+
 - `ProjectRequirements` - User-submitted project specifications
 - `ProjectPlan` - Generated execution plans
 - `ProjectEstimate` - Cost and time estimates
 - `ProjectStatus` - Execution status and progress
 
 ### Agent Communication
+
 - `AgentMessage` - Inter-agent communication format
 - `EventType` - Enumeration of system events
 - `WorkflowState` - Agent workflow status types
 
 ### Cost Tracking
+
 - `TokenUsage` - OpenRouter API token consumption
 - `CostEstimate` - Financial cost projections
 - `BudgetConstraints` - User-defined spending limits
 
 ### API Contracts
+
 - `APIRequest` - Web interface API request types
 - `APIResponse` - Web interface API response types
 - `WebSocketMessage` - Real-time communication types
@@ -63,4 +68,4 @@ bun run type-check
 
 # Build for distribution
 bun run build
-``` 
+```
