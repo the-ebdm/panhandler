@@ -138,6 +138,7 @@ The system handles scope creep through a smart escalation mechanism that determi
 - OpenRouter for the AI API, LangChain will just connect to the API
 - Deepstream.io for the pubsub system. It's an open source server inspired by concepts behind financial trading technology. It allows clients and backend services to sync data, send messages and make rpcs at very high speed and scale.
 - Postgres for the relational database.
+- Kubernetes / Helm for the deployment.
 
 ## Future Considerations
 

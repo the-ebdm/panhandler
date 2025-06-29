@@ -2,7 +2,7 @@
 
 **Macro Step**: Project Setup  
 **Phase**: Foundation Infrastructure  
-**Estimated Effort**: 6-8 hours  
+**Estimated Effort**: 9-11 hours  
 **Dependencies**: None (starting macro step)  
 **Parallel Execution**: Most steps can run in parallel after initial repository setup
 
@@ -105,6 +105,36 @@ Establish a robust development environment and project structure specifically fo
    - **Dependencies**: Build setup
    - **Output**: Development workflow automation
 
+### Container and Deployment Setup (Parallel Group F)
+**Execution Order**: Can run in parallel with other groups
+
+15. **Docker Configuration** 🔄 *Priority: High*
+    - Create Dockerfiles for each package type (agents, web, core services)
+    - Implement multi-stage builds for optimization and security
+    - Set up .dockerignore files for efficient builds
+    - Configure container base images and runtime optimization
+    - **Estimated Time**: 60 minutes
+    - **Dependencies**: Build setup, TypeScript configuration
+    - **Output**: Production-ready container configurations
+
+16. **Container Registry Setup** 🔄 *Priority: Medium*
+    - Configure container registry for image storage
+    - Set up image tagging and versioning strategy
+    - Configure registry authentication and access control
+    - Set up image scanning and vulnerability detection
+    - **Estimated Time**: 30 minutes
+    - **Dependencies**: Docker configuration
+    - **Output**: Container registry with security scanning
+
+17. **Deployment Automation (Makefile)** 🔄 *Priority: High*
+    - Create comprehensive Makefile with deployment commands
+    - Implement `make deploy` for one-command cluster deployment
+    - Add build, tag, push, and deploy automation
+    - Set up environment-specific deployment targets (dev, staging, prod)
+    - **Estimated Time**: 45 minutes
+    - **Dependencies**: Docker configuration, Helm charts
+    - **Output**: One-command deployment automation
+
 ### Testing Infrastructure (Parallel Group D)
 **Execution Order**: Can run in parallel with all other groups
 
@@ -133,19 +163,29 @@ Establish a robust development environment and project structure specifically fo
     - Set up API documentation generation with TypeDoc
     - Configure markdown documentation structure
     - Create development setup and contribution guides
-    - Set up documentation site with VitePress or similar
+    - ~~Set up documentation site with VitePress or similar~~
+    - Documentation is fine as markdown files in the `docs/` directory.
     - **Estimated Time**: 35 minutes
     - **Dependencies**: TypeScript configuration
     - **Output**: Documentation generation system
 
-13. **CI/CD Pipeline Setup** 🔄 *Priority: Medium*
-    - Create GitHub Actions workflow for automated testing
+13. **Helm Chart Setup** 🔄 *Priority: Medium*
+    - Create Helm charts for Kubernetes deployment
+    - Set up values files for different environments (dev, staging, prod)
+    - Configure service definitions for agents and web interface
+    - Set up ingress, secrets, and ConfigMap templates
+    - **Estimated Time**: 50 minutes
+    - **Dependencies**: Build setup, environment configuration
+    - **Output**: Kubernetes deployment charts
+
+14. **CI/CD Pipeline Setup** 🔄 *Priority: Medium*
+    - Create GitLab CI/CD pipeline for automated testing
     - Set up build verification for all packages
-    - Configure deployment pipeline for staging environment
+    - Configure deployment pipeline using Helm charts and Docker images
     - Add dependency security scanning and updates
     - **Estimated Time**: 40 minutes
-    - **Dependencies**: Testing setup, build configuration
-    - **Output**: Automated CI/CD pipeline
+    - **Dependencies**: Testing setup, build configuration, Helm charts, Docker configuration
+    - **Output**: Automated CI/CD pipeline with deployment capability
 
 ## Validation Criteria
 - [ ] All workspace packages build successfully with `bun run build`
@@ -154,6 +194,10 @@ Establish a robust development environment and project structure specifically fo
 - [ ] Tests execute successfully with `bun run test`
 - [ ] TypeScript compilation succeeds with strict mode
 - [ ] Git hooks prevent commits with quality issues
+- [ ] Docker images build successfully for all package types
+- [ ] Container registry accepts and stores images with proper tagging
+- [ ] `make deploy` successfully deploys to development cluster
+- [ ] Helm charts validate and deploy successfully to development environment
 - [ ] CI/CD pipeline runs successfully on pull requests
 - [ ] Documentation generates and deploys correctly
 
@@ -162,6 +206,8 @@ Establish a robust development environment and project structure specifically fo
 - **Monorepo Complexity**: Start with simpler structure and refactor if needed
 - **Workspace Dependencies**: Use exact version pinning to avoid conflicts
 - **Build Performance**: Implement incremental builds and caching strategies
+- **Container Complexity**: Start with simple Dockerfiles and optimize iteratively
+- **Deployment Dependencies**: Ensure container registry and cluster access before deployment automation
 
 ## Cost Estimation
 **[To be properly implemented]** - Token usage cost estimation based on OpenRouter API pricing
@@ -175,8 +221,11 @@ Establish a robust development environment and project structure specifically fo
 - Configuration file generation: ~12,000 output tokens
 - Documentation generation: ~8,000 output tokens
 - Script and automation setup: ~10,000 output tokens
-- Code review and optimization: ~6,000 input tokens
-- **Estimated Cost**: ~$0.11-0.16 (subject to actual usage patterns)
+- Docker and container configuration: ~8,000 output tokens
+- Helm chart and Kubernetes configuration: ~6,000 output tokens
+- Makefile and deployment automation: ~5,000 output tokens
+- Code review and optimization: ~8,000 input tokens
+- **Estimated Cost**: ~$0.18-0.24 (subject to actual usage patterns)
 
 *Note: Cost estimation will be refined as we build pattern recognition from completed setup tasks.*
 
