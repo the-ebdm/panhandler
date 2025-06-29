@@ -1,0 +1,79 @@
+# Development environment values for panhandler
+# Override default values for development deployment
+
+# Development ingress
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: panhandler-dev.local
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: web
+              port: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: agents
+              port: 3000
+  tls: []
+
+# Development agents configuration
+agents:
+  replicaCount: 1
+  env:
+    - name: NODE_ENV
+      value: "development"
+    - name: LOG_LEVEL
+      value: "debug"
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: panhandler-secrets
+          key: database-url
+    - name: OPENROUTER_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: panhandler-secrets
+          key: openrouter-api-key
+
+# Development web configuration
+web:
+  replicaCount: 1
+
+# PostgreSQL for development
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
+    postgresPassword: "dev123!"
+    username: "panhandler_dev"
+    password: "dev123!"
+    database: "panhandler_dev"
+  primary:
+    persistence:
+      enabled: false  # No persistence needed for dev
+
+# Redis for development
+redis:
+  enabled: true
+  auth:
+    enabled: false  # Simplify for dev
+  architecture: standalone
+  master:
+    persistence:
+      enabled: false  # No persistence needed for dev
+
+# Development secrets (would be provided via kubectl/helm in practice)
+secrets:
+  create: true
+  name: panhandler-secrets
+  data:
+    database-url: "postgresql://panhandler_dev:dev123!@panhandler-postgresql:5432/panhandler_dev"
+    openrouter-api-key: "your-dev-api-key-here" 

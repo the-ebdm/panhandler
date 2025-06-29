@@ -1,0 +1,101 @@
+# Production environment values for panhandler
+# Override default values for production deployment
+
+# Production ingress with TLS
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: panhandler.io
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: web
+              port: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: agents
+              port: 3000
+  tls:
+    - secretName: panhandler-tls
+      hosts:
+        - panhandler.io
+
+# Production agents configuration
+agents:
+  replicaCount: 3
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: LOG_LEVEL
+      value: "info"
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: panhandler-secrets
+          key: database-url
+    - name: OPENROUTER_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: panhandler-secrets
+          key: openrouter-api-key
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 1000m  
+      memory: 1Gi
+
+# Production web configuration
+web:
+  replicaCount: 3
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+# PostgreSQL for production (external database recommended)
+postgresql:
+  enabled: false  # Use external managed PostgreSQL in production
+
+# Redis for production (external cache recommended)
+redis:
+  enabled: false  # Use external managed Redis in production
+
+# Production secrets (must be provided externally)
+secrets:
+  create: false  # Secrets managed externally in production
+
+# Monitoring enabled for production
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /metrics 

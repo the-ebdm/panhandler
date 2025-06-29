@@ -1,0 +1,181 @@
+# Default values for panhandler
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global settings
+global:
+  imageRegistry: "ghcr.io/the-ebdm"
+  imagePullSecrets: []
+  storageClass: ""
+
+# Panhandler Agents (Backend)
+agents:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    registry: ghcr.io/the-ebdm
+    repository: panhandler/agents
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  
+  env:
+    - name: NODE_ENV
+      value: "production"
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: panhandler-secrets
+          key: database-url
+    - name: OPENROUTER_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: panhandler-secrets
+          key: openrouter-api-key
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+
+# Panhandler Web (Frontend)
+web:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    registry: docker.io
+    repository: panhandler/web
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 80
+
+# Ingress
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: panhandler.local
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: panhandler-web
+              port: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: panhandler-agents
+              port: 3000
+  tls:
+    - secretName: panhandler-tls
+      hosts:
+        - panhandler.local
+
+# PostgreSQL (using Bitnami chart)
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
+    postgresPassword: "changeMe123!"
+    username: "panhandler"
+    password: "changeMe123!"
+    database: "panhandler"
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+  architecture: standalone
+
+# Redis (using Bitnami chart)
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "changeMe123!"
+  architecture: standalone
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# Secrets (externally managed)
+secrets:
+  create: true
+  name: panhandler-secrets
+  data:
+    database-url: ""  # To be provided via values override
+    openrouter-api-key: ""  # To be provided via values override
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 2000
+
+# Security Context
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Node Selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Monitoring
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    path: /metrics 

@@ -1,0 +1,29 @@
+apiVersion: v2
+name: panhandler
+description: AI Agent Orchestration System with Transparent Cost Tracking
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+maintainers:
+  - name: Panhandler Team
+    email: panhandler@ebdm.dev
+keywords:
+  - ai
+  - agents
+  - orchestration
+  - cost-tracking
+  - automation
+home: https://github.com/panhandler-ai/panhandler
+sources:
+  - https://github.com/panhandler-ai/panhandler
+dependencies:
+  - name: postgresql
+    version: 12.12.10
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: redis
+    version: 18.4.0
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+annotations:
+  category: AI/ML 
