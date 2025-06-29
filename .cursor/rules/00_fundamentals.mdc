@@ -3,10 +3,214 @@ description:
 globs: 
 alwaysApply: true
 ---
-You are assisting in the development of a new AI system called Panhandler
+# Panhandler Agent Operating Procedures
+
+## System Overview
+
+You are assisting in the development of **Panhandler** - an AI system that provides autonomous software development with transparent cost tracking.
 
 Panhandler is a collection of AI agents that operate based on someone putting money in the pan. It will then take a git repository and build a development plan for it, estimating the cost involved along the way (the cost being the openrouter token cost). Maybe we'll add a small service fee if it's running on our servers.
 
 You are required to follow the structures created for our system to perform the development on its behalf until it can augment your capacity. My idea is that one day we will have a series of MCP servers that you will be able to interact with.
 
-Until then you will follow the docs/PLAN.md and the given plan for the phase and macro task
+Until then you will follow the docs/PLAN.md and the given plan for the phase and macro task.
+
+## Core Operating Principles
+
+### 1. Documentation-Centric Development
+- **Always start with reading the plan**: Check `docs/PLAN.md` and relevant phase documentation
+- **Update documentation in real-time**: Mark steps as IN PROGRESS, then COMPLETED with timestamps
+- **Track performance metrics**: Record actual vs estimated time, note when work is faster/slower
+- **Document decisions and rationale**: Future agents need context for why choices were made
+
+### 2. Atomic Development Methodology
+- **One logical change per commit**: Never bundle unrelated changes
+- **Descriptive commit messages**: Use conventional commit format with clear explanations
+- **Build incrementally**: Test each component before moving to the next
+- **Fail fast**: If something doesn't work, fix it immediately before proceeding
+
+### 3. Time Tracking and Performance
+- **Always start with timestamps**: Mark start time in documentation before beginning work
+- **Track completion accurately**: Record end time and calculate performance delta
+- **Learn from patterns**: AI-assisted development is typically 50-70% faster than traditional estimates
+- **Update projections**: Use actual performance to recalibrate remaining estimates
+
+### 4. Quality-First Approach
+- **Type safety everywhere**: All code must pass TypeScript strict mode
+- **Test as you build**: Ensure each component works before integrating
+- **Pre-commit hooks enforce standards**: Let automation catch basic issues
+- **Zero tolerance for broken builds**: Fix immediately, don't defer
+
+## Operational Workflows
+
+### Starting a New Step/Task
+
+1. **Read the documentation first**
+   ```bash
+   # Check current phase and step
+   cat docs/plans/phase-*/[current-step].md
+   ```
+
+2. **Mark step as IN PROGRESS**
+   ```markdown
+   X. **Step Name** 🔄 *Priority: High* **IN PROGRESS**
+   - **Start**: [UTC timestamp]
+   ```
+
+3. **Understand dependencies**
+   - What previous steps must be completed?
+   - What other teams/agents might be affected?
+   - What validation criteria define "done"?
+
+### Development Process
+
+1. **Build incrementally**
+   - Start with simplest possible implementation
+   - Test each component individually
+   - Integrate step-by-step with validation
+
+2. **Use atomic commits**
+   ```bash
+   # Good: Single logical change
+   git commit -m "feat: add TypeScript configuration for agents package"
+   
+   # Bad: Multiple unrelated changes  
+   git commit -m "fix multiple issues and add features"
+   ```
+
+3. **Validate continuously**
+   ```bash
+   # Run these commands frequently
+   bun run type-check    # TypeScript validation
+   bun run build        # Full build test
+   bun run test         # Test suite
+   ```
+
+### Error Handling Protocol
+
+1. **Stop and analyze**: Don't proceed with broken foundations
+2. **Check dependencies**: Often errors are missing prerequisites
+3. **Isolate the problem**: Test components individually
+4. **Fix root cause**: Don't work around fundamental issues
+5. **Document the solution**: Help future agents avoid the same issue
+
+### Completion Workflow
+
+1. **Validate all success criteria**
+   - Does it build successfully?
+   - Do all tests pass?
+   - Are type checks clean?
+
+2. **Update documentation**
+   ```markdown
+   X. **Step Name** ✅ *Priority: High* **COMPLETED**
+   - **Estimated Time**: 60 minutes
+   - **Actual Time**: 18 minutes ⚡ *70% faster than estimated*
+   - **Start**: 17:10 UTC
+   - **End**: 17:28 UTC
+   - **Output**: ✅ [Clear description of deliverables]
+   ```
+
+3. **Commit and prepare for next step**
+
+## Technical Standards
+
+### Workspace Management
+- **BunJS for package management**: Fast, modern, workspace-aware
+- **TypeScript strict mode**: No compromises on type safety
+- **Monorepo with proper references**: Packages must reference each other correctly
+- **Build order matters**: `types → core → agents → web`
+
+### Code Organization
+```
+packages/
+├── types/     # Shared TypeScript definitions
+├── core/      # Base classes and framework
+├── agents/    # Agent implementations
+└── web/       # React interface
+```
+
+### Development Commands
+```bash
+# Start development
+bun run dev              # Start web dev server
+bun run dev:all         # Start all services
+
+# Building
+bun run build:deps      # Build foundation packages
+bun run build:sequential # Build all in correct order
+bun run type-check      # TypeScript validation
+
+# Testing
+bun run test            # Run test suite
+bun run lint            # Code quality checks
+```
+
+### Git Workflow
+- **Branch**: Work directly on `master` for this phase (single developer)
+- **Commits**: Atomic, well-described, tested changes
+- **Pre-commit hooks**: Automatic validation runs before each commit
+- **Conventional commits**: Use `feat:`, `fix:`, `docs:`, `refactor:` prefixes
+
+## Success Patterns from Phase 1
+
+### What Works Well
+1. **Documentation-first approach**: Reading plans before coding prevents rework
+2. **Incremental building**: Small, tested steps accumulate into robust systems
+3. **Performance tracking**: Actual times help calibrate future estimates
+4. **Atomic commits**: Clean history makes debugging and rollback easier
+5. **Type-first development**: TypeScript catches issues before runtime
+
+### Common Pitfalls to Avoid
+1. **Building without reading the plan**: Leads to incompatible implementations
+2. **Skipping time tracking**: Loses valuable performance data
+3. **Bundling multiple changes**: Makes debugging and rollback difficult
+4. **Ignoring build failures**: Broken foundations cause cascading issues
+5. **Missing dependency order**: Breaks workspace references
+
+## Performance Benchmarks
+
+Based on Phase 1, Step 1-5 completion:
+- **AI-assisted development**: ~65-70% faster than traditional estimates
+- **Documentation updates**: Include in development time, not separate
+- **Build setup**: TypeScript composite projects need `--build` flag
+- **React development**: Vite provides excellent developer experience
+
+## Future Agent Guidance
+
+### When You Encounter This Document
+1. **Read the entire document** before starting any work
+2. **Check if patterns have evolved** since your last update
+3. **Update this document** if you discover better approaches
+4. **Share learnings** by expanding relevant sections
+
+### Continuous Improvement
+- **Add new patterns** as you discover them
+- **Update performance benchmarks** with new data
+- **Document common issues** and their solutions
+- **Refine processes** based on what works
+
+## Emergency Procedures
+
+### If Git Hooks Fail
+```bash
+# Skip hooks only in emergencies
+git commit --no-verify -m "emergency: [reason]"
+# Then fix the underlying issue immediately
+```
+
+### If Build System Breaks
+1. Check TypeScript project references
+2. Verify dependency build order
+3. Clear build cache: `rm -rf packages/*/dist packages/*/tsconfig.tsbuildinfo`
+4. Rebuild from foundation: `bun run build:sequential`
+
+### If Development Server Won't Start
+1. Check port conflicts (Vite auto-detects)
+2. Verify React component imports (no `.tsx` extensions)
+3. Check for missing dependencies: `bun install`
+4. Test with minimal setup first
+
+---
+
+**Remember**: This is a living document. Update it as you learn and improve the development process. Future agents depend on your insights to maintain velocity and quality.
