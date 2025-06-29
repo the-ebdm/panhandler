@@ -33,15 +33,17 @@ Until then you will follow the docs/PLAN.md and the given plan for the phase and
 - **MANDATORY: Use shell commands for timestamps**: NEVER hallucinate timestamps - always use `date -u` or equivalent shell command to get real UTC time
 - **Always start with timestamps**: Mark start time in documentation before beginning work using actual shell command output
 - **Track completion accurately**: Record end time using actual shell command and calculate performance delta
-- **Learn from patterns**: AI-assisted development is typically 50-70% faster than traditional estimates
-- **Update projections**: Use actual performance to recalibrate remaining estimates
+- **Learn from patterns**: AI-assisted development is typically 80-90% faster than traditional estimates (updated from Phase 1 data)
+- **Update projections**: Use actual performance to recalibrate remaining estimates using complexity-based multipliers
 - **Critical Rule**: Any timestamp in documentation MUST come from a shell command execution, not from imagination
+- **Performance Recalibration**: After every 3-4 completed steps, analyze performance patterns and update remaining estimates
 
 ### 4. Quality-First Approach
 - **Type safety everywhere**: All code must pass TypeScript strict mode
 - **Test as you build**: Ensure each component works before integrating
 - **Pre-commit hooks enforce standards**: Let automation catch basic issues
 - **Zero tolerance for broken builds**: Fix immediately, don't defer
+- **Reference the existing documentation library** Always source architecture decisions from the documentation library - ask the user if a topic is unexplored - treat it as a living knowledge base that you must actively maintain
 
 ## Operational Workflows
 
@@ -181,11 +183,63 @@ bun run lint            # Code quality checks
 
 ## Performance Benchmarks
 
-Based on Phase 1, Step 1-5 completion:
-- **AI-assisted development**: ~65-70% faster than traditional estimates
+**Updated from Phase 1, Steps 1-9 completion** (Sun 29 Jun 2025):
+
+### AI-Assisted Development Performance
+- **Overall Performance**: 80-90% faster than traditional estimates (actual time ≈ 15% of estimated)
+- **Consistency**: 4 consecutive steps showed reliable performance pattern
+- **Step 6 (Linting)**: 7 min actual vs 35 min estimated (80% faster)
+- **Step 7 (Git Hooks)**: 2 min actual vs 25 min estimated (92% faster)
+- **Step 8 (Environment)**: 4 min actual vs 30 min estimated (87% faster)
+- **Step 9 (Dev Scripts)**: 8 min actual vs 40 min estimated (80% faster)
+
+### Complexity-Based Estimation Model
+**Easy Tasks** (configuration, documentation): 10-15% of traditional estimates
+- Environment setup, documentation generation, simple configuration files
+
+**Medium Tasks** (integration, frameworks): 15-25% of traditional estimates  
+- Testing frameworks, build systems, development tooling, containerization
+
+**Hard Tasks** (complex systems, multi-component): 20-30% of traditional estimates
+- Integration testing, Helm charts, CI/CD pipelines, deployment automation
+
+### Technical Performance Notes
 - **Documentation updates**: Include in development time, not separate
 - **Build setup**: TypeScript composite projects need `--build` flag
 - **React development**: Vite provides excellent developer experience
+- **Bun Performance**: 2-3x faster than Node.js for typical development tasks
+- **TypeScript Compilation**: Incremental builds essential for large workspaces
+
+## Estimation Methodology
+
+**Data-Driven Approach** (established Phase 1, Step 6-9):
+
+### Initial Estimation Process
+1. **Categorize task complexity**: Easy, Medium, or Hard based on scope and integration requirements
+2. **Apply multipliers to traditional estimates**:
+   - Easy: `original_estimate × 0.10-0.15`
+   - Medium: `original_estimate × 0.15-0.25`  
+   - Hard: `original_estimate × 0.20-0.30`
+3. **Document assumptions**: Note what makes task easy/medium/hard
+4. **Set validation criteria**: Define clear "done" conditions
+
+### Performance Tracking Workflow
+1. **Start with shell timestamp**: `date -u` before beginning work
+2. **Track progress**: Note any blockers or faster-than-expected progress
+3. **End with shell timestamp**: `date -u` upon completion
+4. **Calculate actual vs revised estimate**: Record performance ratio
+5. **Update future estimates**: Adjust multipliers based on new data
+
+### Recalibration Triggers
+- **After 3-4 completed steps**: Analyze patterns and update remaining estimates
+- **When performance deviates >30% from expectations**: Investigate and adjust methodology
+- **Beginning of new phases**: Re-evaluate complexity categories for new work types
+- **Discovery of new tools/techniques**: Factor in efficiency gains
+
+### Confidence Levels
+- **High Confidence**: 4+ data points showing consistent pattern (current status)
+- **Medium Confidence**: 2-3 data points with similar results
+- **Low Confidence**: 1 data point or inconsistent results (fall back to conservative estimates)
 
 ## Future Agent Guidance
 
