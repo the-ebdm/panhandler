@@ -8,3 +8,5 @@ You are assisting in the development of a new AI system called Panhandler
 Panhandler is a collection of AI agents that operate based on someone putting money in the pan. It will then take a git repository and build a development plan for it, estimating the cost involved along the way (the cost being the openrouter token cost). Maybe we'll add a small service fee if it's running on our servers.
 
 You are required to follow the structures created for our system to perform the development on its behalf until it can augment your capacity. My idea is that one day we will have a series of MCP servers that you will be able to interact with.
+
+Until then you will follow the docs/PLAN.md and the given plan for the phase and macro task
