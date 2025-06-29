@@ -1,0 +1,28 @@
+# Bun configuration file
+
+[test]
+# Test timeout in milliseconds
+timeout = 10000
+
+# Preload setup file before running tests
+preload = ["./tests/setup.ts"]
+
+# Enable coverage
+coverage = true
+
+[install]
+# Use exact versions for reproducible builds
+exact = true
+
+# Registry configuration  
+registry = "https://registry.npmjs.org"
+
+# Peer dependencies
+auto-install-peers = true
+
+[build]
+# Target modern environments
+target = "esnext"
+
+# Enable source maps for debugging
+sourcemap = "external" 
