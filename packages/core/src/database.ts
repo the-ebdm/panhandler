@@ -4,7 +4,7 @@ import type {
   MigrationContext,
   MigrationRecord,
   MigrationResult,
-  DatabaseConfig
+  DatabaseConfig,
 } from '@panhandler/types';
 import crypto from 'crypto';
 
@@ -17,22 +17,22 @@ export class PostgresMigrationRunner {
 
   private createMigrationContext(): MigrationContext {
     return {
-      query: async (query: string, params?: unknown[]) => {
+      query: async (query: string, _params?: unknown[]) => {
         // Use sql function directly for safe queries
         const result = await sql`${query}`;
         return Array.isArray(result) ? result : [result];
       },
-      execute: async (query: string, params?: unknown[]) => {
+      execute: async (query: string, _params?: unknown[]) => {
         await sql`${query}`;
       },
       transaction: async <T>(fn: (ctx: MigrationContext) => Promise<T>): Promise<T> => {
-        return await sql.begin(async (transaction) => {
+        return await sql.begin(async transaction => {
           const txContext: MigrationContext = {
-            query: async (query: string, params?: unknown[]) => {
+            query: async (query: string, _params?: unknown[]) => {
               const result = await transaction`${query}`;
               return Array.isArray(result) ? result : [result];
             },
-            execute: async (query: string, params?: unknown[]) => {
+            execute: async (query: string, _params?: unknown[]) => {
               await transaction`${query}`;
             },
             transaction: async <U>(fn: (ctx: MigrationContext) => Promise<U>): Promise<U> => {
@@ -47,11 +47,11 @@ export class PostgresMigrationRunner {
                 await transaction`ROLLBACK TO SAVEPOINT ${savepointName}`;
                 throw error;
               }
-            }
+            },
           };
           return await fn(txContext);
         });
-      }
+      },
     };
   }
 
@@ -77,10 +77,10 @@ export class PostgresMigrationRunner {
       ORDER BY applied_at
     `;
 
-    return rows.map((row: any) => ({
+    return rows.map((row: { id: string; applied_at: Date; checksum: string }) => ({
       id: row.id,
       applied_at: new Date(row.applied_at),
-      checksum: row.checksum
+      checksum: row.checksum,
     }));
   }
 
@@ -91,16 +91,16 @@ export class PostgresMigrationRunner {
       const checksum = this.calculateChecksum(migration);
       const context = this.createMigrationContext();
 
-      await sql.begin(async (transaction) => {
+      await sql.begin(async transaction => {
         const txContext: MigrationContext = {
-          query: async (query: string, params?: unknown[]) => {
+          query: async (query: string, _params?: unknown[]) => {
             const result = await transaction`${query}`;
             return Array.isArray(result) ? result : [result];
           },
-          execute: async (query: string, params?: unknown[]) => {
+          execute: async (query: string, _params?: unknown[]) => {
             await transaction`${query}`;
           },
-          transaction: context.transaction // Use the outer transaction context
+          transaction: context.transaction, // Use the outer transaction context
         };
 
         // Run the migration
@@ -116,14 +116,14 @@ export class PostgresMigrationRunner {
       return {
         id: migration.id,
         status: 'applied',
-        duration_ms: Date.now() - startTime
+        duration_ms: Date.now() - startTime,
       };
     } catch (error) {
       return {
         id: migration.id,
         status: 'failed',
         duration_ms: Date.now() - startTime,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -134,16 +134,16 @@ export class PostgresMigrationRunner {
     try {
       const context = this.createMigrationContext();
 
-      await sql.begin(async (transaction) => {
+      await sql.begin(async transaction => {
         const txContext: MigrationContext = {
-          query: async (query: string, params?: unknown[]) => {
+          query: async (query: string, _params?: unknown[]) => {
             const result = await transaction`${query}`;
             return Array.isArray(result) ? result : [result];
           },
-          execute: async (query: string, params?: unknown[]) => {
+          execute: async (query: string, _params?: unknown[]) => {
             await transaction`${query}`;
           },
-          transaction: context.transaction // Use the outer transaction context
+          transaction: context.transaction, // Use the outer transaction context
         };
 
         // Run the rollback
@@ -158,14 +158,14 @@ export class PostgresMigrationRunner {
       return {
         id: migration.id,
         status: 'rolled_back',
-        duration_ms: Date.now() - startTime
+        duration_ms: Date.now() - startTime,
       };
     } catch (error) {
       return {
         id: migration.id,
         status: 'failed',
         duration_ms: Date.now() - startTime,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -247,7 +247,7 @@ export class MigrationManager {
     return results;
   }
 
-  async status(): Promise<{ pending: Migration[], applied: MigrationRecord[] }> {
+  async status(): Promise<{ pending: Migration[]; applied: MigrationRecord[] }> {
     await this.runner.ensureMigrationsTable();
     const applied = await this.runner.getAppliedMigrations();
     const appliedIds = new Set(applied.map(m => m.id));
@@ -256,4 +256,4 @@ export class MigrationManager {
 
     return { pending, applied };
   }
-} 
+}

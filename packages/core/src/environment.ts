@@ -3,20 +3,22 @@
  * Provides type-safe environment variable loading and validation
  */
 
+import { URL } from 'url';
 import {
   EnvironmentConfig,
   EnvironmentValidationError,
   ENV_VALIDATION_RULES,
-  NodeEnvironment,
-  LogLevel,
-  GitProvider,
   ValidationRule,
 } from '@panhandler/types';
 
 /**
  * Parse and validate environment variable value according to rule
  */
-function parseEnvironmentValue(key: string, value: string | undefined, rule: ValidationRule): unknown {
+function parseEnvironmentValue(
+  key: string,
+  value: string | undefined,
+  rule: ValidationRule
+): unknown {
   // Handle required but missing values
   if (rule.required && (value === undefined || value === '')) {
     throw new EnvironmentValidationError(
@@ -69,12 +71,7 @@ function parseEnvironmentValue(key: string, value: string | undefined, rule: Val
     case 'number': {
       const parsed = Number(value);
       if (isNaN(parsed)) {
-        throw new EnvironmentValidationError(
-          key,
-          value,
-          rule,
-          'Value is not a valid number'
-        );
+        throw new EnvironmentValidationError(key, value, rule, 'Value is not a valid number');
       }
       if (rule.min !== undefined && parsed < rule.min) {
         throw new EnvironmentValidationError(
@@ -113,7 +110,10 @@ function parseEnvironmentValue(key: string, value: string | undefined, rule: Val
 
     case 'array': {
       // Split on commas and trim whitespace
-      const parsed = value.split(',').map(item => item.trim()).filter(item => item.length > 0);
+      const parsed = value
+        .split(',')
+        .map(item => item.trim())
+        .filter(item => item.length > 0);
       return parsed;
     }
 
@@ -122,12 +122,7 @@ function parseEnvironmentValue(key: string, value: string | undefined, rule: Val
         new URL(value);
         return value;
       } catch {
-        throw new EnvironmentValidationError(
-          key,
-          value,
-          rule,
-          'Value is not a valid URL'
-        );
+        throw new EnvironmentValidationError(key, value, rule, 'Value is not a valid URL');
       }
     }
 
@@ -167,7 +162,8 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
       const parsed = parseEnvironmentValue(key, value, rule);
 
       if (parsed !== undefined) {
-        (config as any)[key] = parsed;
+        // TypeScript index signature workaround for dynamic assignment
+        (config as Record<string, unknown>)[key] = parsed;
       }
     } catch (error) {
       if (error instanceof EnvironmentValidationError) {
@@ -187,7 +183,8 @@ export function loadEnvironmentConfig(): EnvironmentConfig {
 
   // If there were validation errors, throw them all
   if (errors.length > 0) {
-    const errorMessage = `Environment validation failed with ${errors.length} error(s):\n` +
+    const errorMessage =
+      `Environment validation failed with ${errors.length} error(s):\n` +
       errors.map(err => `  - ${err.message}`).join('\n');
 
     const combinedError = new Error(errorMessage);
@@ -224,13 +221,22 @@ function validateEnvironmentConstraints(config: EnvironmentConfig): void {
     if (config.JWT_SECRET.includes('dev_') || config.JWT_SECRET.includes('change_in_production')) {
       throw new Error('Production environment cannot use development JWT secrets');
     }
-    if (config.SESSION_SECRET.includes('dev_') || config.SESSION_SECRET.includes('change_in_production')) {
+    if (
+      config.SESSION_SECRET.includes('dev_') ||
+      config.SESSION_SECRET.includes('change_in_production')
+    ) {
       throw new Error('Production environment cannot use development session secrets');
     }
 
     // Require HTTPS URLs in production
-    if (config.CORS_ORIGINS.some(origin => origin.startsWith('http://') && !origin.includes('localhost'))) {
-      throw new Error('Production environment should not allow non-HTTPS CORS origins (except localhost)');
+    if (
+      config.CORS_ORIGINS.some(
+        origin => origin.startsWith('http://') && !origin.includes('localhost')
+      )
+    ) {
+      throw new Error(
+        'Production environment should not allow non-HTTPS CORS origins (except localhost)'
+      );
     }
   }
 
@@ -256,7 +262,9 @@ export function getEnvironmentConfig(): EnvironmentConfig {
   if (!environmentConfig) {
     try {
       environmentConfig = loadEnvironmentConfig();
-      console.log(`✅ Environment configuration loaded successfully (${environmentConfig.NODE_ENV})`);
+      console.log(
+        `✅ Environment configuration loaded successfully (${environmentConfig.NODE_ENV})`
+      );
     } catch (error) {
       console.error('❌ Failed to load environment configuration:');
       console.error(error instanceof Error ? error.message : String(error));
@@ -300,4 +308,4 @@ export function isTest(): boolean {
  */
 export function getEnvValue<K extends keyof EnvironmentConfig>(key: K): EnvironmentConfig[K] {
   return getEnvironmentConfig()[key];
-} 
+}

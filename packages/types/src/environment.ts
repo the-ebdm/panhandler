@@ -115,7 +115,11 @@ export interface ValidationRule {
 }
 
 export const ENV_VALIDATION_RULES: Record<keyof EnvironmentConfig, ValidationRule> = {
-  NODE_ENV: { type: 'enum', required: true, enum: ['development', 'staging', 'production', 'test'] },
+  NODE_ENV: {
+    type: 'enum',
+    required: true,
+    enum: ['development', 'staging', 'production', 'test'],
+  },
   APP_NAME: { type: 'string', required: true },
   APP_VERSION: { type: 'string', required: true, pattern: /^\d+\.\d+\.\d+/ },
   APP_PORT: { type: 'number', required: true, min: 1000, max: 65535 },
@@ -159,4 +163,4 @@ export class EnvironmentValidationError extends Error {
     super(`Environment validation error for ${field}: ${message}`);
     this.name = 'EnvironmentValidationError';
   }
-} 
+}

@@ -39,4 +39,4 @@ export interface MigrationResult {
   status: 'applied' | 'rolled_back' | 'failed';
   duration_ms: number;
   error?: string;
-} 
+}
