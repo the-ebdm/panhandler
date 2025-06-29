@@ -12,6 +12,7 @@
     "build": "make build",
     "build:sequential": "make build-sequential",
     "test": "make test",
+    "test:integration": "make test-integration",
     "lint": "make lint",
     "type-check": "make type-check",
     "clean": "make clean",
@@ -59,7 +60,7 @@
     "software-development",
     "orchestration"
   ],
-  "author": "Your Name",
+  "author": "EBDM",
   "license": "MIT",
   "dependencies": {
     "dotenv": "^17.0.0"
