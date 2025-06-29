@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Configuration
-REGISTRY="ghcr.io/the-ebdm/panhandler"
+REGISTRY="ghcr.io/the-ebdm"
 NAMESPACE="panhandler"
 VERSION=${VERSION:-$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')}
 GIT_COMMIT=${GIT_COMMIT:-$(git rev-parse HEAD)}
