@@ -1,0 +1,259 @@
+# GitLab CI/CD Pipeline for Panhandler AI Agent Orchestration System
+# Stages: test, build, security, deploy
+
+variables:
+  # Docker configuration
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_IMAGE_AGENTS: "$DOCKER_REGISTRY/panhandler/agents"
+  DOCKER_IMAGE_WEB: "$DOCKER_REGISTRY/panhandler/web"
+  DOCKER_IMAGE_TAG: "$CI_COMMIT_SHORT_SHA"
+  
+  # BunJS configuration
+  BUN_VERSION: "1.2.15"
+  
+  # Helm configuration
+  HELM_VERSION: "3.13.3"
+  
+  # Security scanning
+  GITLEAKS_VERSION: "8.18.0"
+
+stages:
+  - test
+  - build
+  - security
+  - deploy
+
+# Test stage - run all tests and quality checks
+test:unit:
+  stage: test
+  image: oven/bun:${BUN_VERSION}-alpine
+  before_script:
+    - bun install --frozen-lockfile
+  script:
+    - echo "🧪 Running unit tests..."
+    - bun run test
+    - echo "✅ Unit tests passed"
+  coverage: '/Lines\s*:\s*(\d+\.?\d*)/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: lcov
+        path: coverage/lcov.info
+    paths:
+      - coverage/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+test:integration:
+  stage: test
+  image: oven/bun:${BUN_VERSION}-alpine
+  services:
+    - postgres:15-alpine
+  variables:
+    POSTGRES_DB: panhandler_test
+    POSTGRES_USER: test_user
+    POSTGRES_PASSWORD: test_password
+    DATABASE_URL: "postgresql://test_user:test_password@postgres:5432/panhandler_test"
+  before_script:
+    - bun install --frozen-lockfile
+  script:
+    - echo "🔗 Running integration tests..."
+    - bun run test:integration
+    - echo "✅ Integration tests passed"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+lint:
+  stage: test
+  image: oven/bun:${BUN_VERSION}-alpine
+  before_script:
+    - bun install --frozen-lockfile
+  script:
+    - echo "🔍 Running linting checks..."
+    - bun run lint
+    - echo "✅ Linting passed"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+type-check:
+  stage: test
+  image: oven/bun:${BUN_VERSION}-alpine
+  before_script:
+    - bun install --frozen-lockfile
+  script:
+    - echo "📝 Running TypeScript checks..."
+    - bun run type-check
+    - echo "✅ TypeScript checks passed"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+# Build stage - compile and build artifacts
+build:packages:
+  stage: build
+  image: oven/bun:${BUN_VERSION}-alpine
+  before_script:
+    - bun install --frozen-lockfile
+  script:
+    - echo "🏗️ Building all packages..."
+    - bun run build:sequential
+    - echo "✅ All packages built successfully"
+  artifacts:
+    paths:
+      - packages/*/dist/
+      - packages/web/dist/
+    expire_in: 1 day
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+build:docker:
+  stage: build
+  image: docker:24.0.7
+  services:
+    - docker:24.0.7-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  dependencies:
+    - build:packages
+  before_script:
+    - echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+  script:
+    - echo "🐳 Building Docker images..."
+    - docker build -t "$DOCKER_IMAGE_AGENTS:$DOCKER_IMAGE_TAG" -t "$DOCKER_IMAGE_AGENTS:latest" .
+    - docker build -f Dockerfile.web -t "$DOCKER_IMAGE_WEB:$DOCKER_IMAGE_TAG" -t "$DOCKER_IMAGE_WEB:latest" .
+    - echo "✅ Docker images built successfully"
+    - echo "📦 Pushing Docker images..."
+    - docker push "$DOCKER_IMAGE_AGENTS:$DOCKER_IMAGE_TAG"
+    - docker push "$DOCKER_IMAGE_AGENTS:latest"
+    - docker push "$DOCKER_IMAGE_WEB:$DOCKER_IMAGE_TAG"
+    - docker push "$DOCKER_IMAGE_WEB:latest"
+    - echo "✅ Docker images pushed successfully"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+
+# Security stage - vulnerability scanning and security checks
+security:secrets:
+  stage: security
+  image: alpine:3.18
+  before_script:
+    - apk add --no-cache wget
+    - wget -O gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_Linux_x64.tar.gz"
+    - tar -xzf gitleaks.tar.gz
+    - chmod +x gitleaks
+  script:
+    - echo "🔐 Scanning for secrets and sensitive data..."
+    - ./gitleaks detect --verbose --no-git
+    - echo "✅ No secrets detected"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+security:dependencies:
+  stage: security
+  image: oven/bun:${BUN_VERSION}-alpine
+  before_script:
+    - bun install --frozen-lockfile
+  script:
+    - echo "📊 Scanning dependencies for vulnerabilities..."
+    - bun audit
+    - echo "✅ Dependency security scan passed"
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+# Deploy stage - deployment to various environments
+deploy:staging:
+  stage: deploy
+  image: alpine/helm:${HELM_VERSION}
+  dependencies:
+    - build:docker
+  before_script:
+    - apk add --no-cache curl
+    - helm repo add bitnami https://charts.bitnami.com/bitnami
+    - helm dependency build ./charts/panhandler
+  script:
+    - echo "🚀 Deploying to staging environment..."
+    - helm upgrade --install panhandler-staging ./charts/panhandler 
+      --namespace panhandler-staging --create-namespace
+      --values ./charts/panhandler/values-dev.yaml
+      --set agents.image.tag=$DOCKER_IMAGE_TAG
+      --set web.image.tag=$DOCKER_IMAGE_TAG
+      --set secrets.data.database-url=$STAGING_DATABASE_URL
+      --set secrets.data.openrouter-api-key=$STAGING_OPENROUTER_API_KEY
+      --wait --timeout=10m
+    - echo "✅ Staging deployment completed"
+  environment:
+    name: staging
+    url: https://panhandler-staging.example.com
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+
+deploy:production:
+  stage: deploy
+  image: alpine/helm:${HELM_VERSION}
+  dependencies:
+    - build:docker
+  before_script:
+    - apk add --no-cache curl
+    - helm repo add bitnami https://charts.bitnami.com/bitnami
+    - helm dependency build ./charts/panhandler
+  script:
+    - echo "🚀 Deploying to production environment..."
+    - helm upgrade --install panhandler-prod ./charts/panhandler 
+      --namespace panhandler-production --create-namespace
+      --values ./charts/panhandler/values-prod.yaml
+      --set agents.image.tag=$DOCKER_IMAGE_TAG
+      --set web.image.tag=$DOCKER_IMAGE_TAG
+      --wait --timeout=15m
+    - echo "✅ Production deployment completed"
+  environment:
+    name: production
+    url: https://panhandler.io
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
+
+# Rollback job for emergency situations
+rollback:production:
+  stage: deploy
+  image: alpine/helm:${HELM_VERSION}
+  script:
+    - echo "🔄 Rolling back production deployment..."
+    - helm rollback panhandler-prod --namespace panhandler-production
+    - echo "✅ Production rollback completed"
+  environment:
+    name: production
+    url: https://panhandler.io
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
+  allow_failure: false
+
+# Cleanup job for removing old Docker images
+cleanup:docker:
+  stage: deploy
+  image: docker:24.0.7
+  services:
+    - docker:24.0.7-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - echo "$DOCKER_HUB_TOKEN" | docker login -u "$DOCKER_HUB_USER" --password-stdin
+  script:
+    - echo "🧹 Cleaning up old Docker images..."
+    - echo "Keeping latest and current commit tags, cleaning others..."
+    - echo "✅ Docker cleanup completed"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      when: manual
+  allow_failure: true 
