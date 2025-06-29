@@ -4,7 +4,7 @@ AI Agent Orchestration System for Autonomous Software Development
 
 ## Overview
 
-Panhandler is a collection of AI agents that operate based on someone putting money in the pan. It takes a git repository and builds a development plan for it, estimating the cost involved along the way (the cost being the OpenRouter token cost). Maybe we'll add a small service fee if it's running on our servers.
+Panhandler is a collection of AI agents that operate based on someone putting money in the pan. It takes a git repository and builds a development plan for it, estimating the cost involved along the way (the cost being the OpenRouter token cost). Maybe we'll add a small service fee if it's running on our servers. It's a sad twisted metaphor for the position it will put real developers in.
 
 ## Quick Start
 
