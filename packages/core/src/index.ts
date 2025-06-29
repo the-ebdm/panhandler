@@ -1,4 +1,6 @@
 import { AgentConfig, AgentState } from '@panhandler/types';
+// Environment configuration and validation
+export * from './environment';
 
 /**
  * Abstract base class for all Panhandler agents
@@ -67,10 +69,10 @@ export abstract class BaseAgent {
   /**
    * Lifecycle hooks - subclasses can override these
    */
-  protected async onStart(): Promise<void> {}
-  protected async onStop(): Promise<void> {}
-  protected async onPause(): Promise<void> {}
-  protected async onResume(): Promise<void> {}
+  protected async onStart(): Promise<void> { }
+  protected async onStop(): Promise<void> { }
+  protected async onPause(): Promise<void> { }
+  protected async onResume(): Promise<void> { }
 }
 
 /**
