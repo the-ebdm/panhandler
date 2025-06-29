@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: panhandler-postgres
+    environment:
+      POSTGRES_DB: panhandler_dev
+      POSTGRES_USER: panhandler
+      POSTGRES_PASSWORD: development_password
+      POSTGRES_HOST_AUTH_METHOD: md5
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./tests/fixtures/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - panhandler-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U panhandler -d panhandler_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and pub/sub
+  redis:
+    image: redis:7-alpine
+    container_name: panhandler-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - panhandler-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Agents service
+  agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: panhandler-agents
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://panhandler:development_password@postgres:5432/panhandler_dev
+      - REDIS_URL=redis://redis:6379
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - LOG_LEVEL=debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - panhandler-network
+    volumes:
+      # For development, mount source for hot reload
+      - ./packages:/app/packages:ro
+      - ./scripts:/app/scripts:ro
+    restart: unless-stopped
+
+  # Web interface
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      target: runtime
+    container_name: panhandler-web
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - agents
+    networks:
+      - panhandler-network
+    restart: unless-stopped
+
+  deepstream:
+    image: deepstreamio/deepstream.io
+    ports:
+        - "6020:6020"
+    volumes:
+        - ./conf:/conf
+    depends_on:
+      - redis
+      - rethinkdb
+  deepstream-search-provider:
+    image: deepstreamio/provider-search-rethinkdb
+    environment:
+      - DEEPSTREAM_HOST=deepstream
+      - DEEPSTREAM_PORT=6020
+      - RETHINKDB_HOST=rethinkdb
+    depends_on:
+      - deepstream
+  rethinkdb:
+    image: rethinkdb
+    ports:
+      - "28015:28015"
+      - "8080:8080"
+    volumes:
+      - rethinkdb_data:/data/rethinkdb_data
+
+networks:
+  panhandler-network:
+    driver: bridge
+    name: panhandler-network
+
+volumes:
+  postgres_data:
+    name: panhandler-postgres-data
+  redis_data:
+    name: panhandler-redis-data 
+  rethinkdb_data:
+    name: panhandler-rethinkdb-data

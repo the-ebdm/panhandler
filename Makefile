@@ -259,7 +259,27 @@ docs-watch: ## Watch and regenerate documentation
 
 docker-build: ## Build Docker images
 	@echo "$(GREEN)Building Docker images...$(RESET)"
-	docker build -t panhandler:latest .
+	scripts/docker-build.sh all
+
+docker-build-agents: ## Build agents Docker image
+	@echo "$(GREEN)Building agents Docker image...$(RESET)"
+	scripts/docker-build.sh agents
+
+docker-build-web: ## Build web Docker image
+	@echo "$(GREEN)Building web Docker image...$(RESET)"
+	scripts/docker-build.sh web
+
+docker-push: ## Build and push Docker images
+	@echo "$(GREEN)Building and pushing Docker images...$(RESET)"
+	scripts/docker-build.sh --push --latest all
+
+docker-push-agents: ## Build and push agents image
+	@echo "$(GREEN)Building and pushing agents image...$(RESET)"
+	scripts/docker-build.sh --push agents
+
+docker-push-web: ## Build and push web image
+	@echo "$(GREEN)Building and pushing web image...$(RESET)"
+	scripts/docker-build.sh --push web
 
 docker-run: ## Run Docker container
 	@echo "$(GREEN)Running Docker container...$(RESET)"
@@ -268,6 +288,91 @@ docker-run: ## Run Docker container
 docker-clean: ## Clean Docker artifacts
 	@echo "$(GREEN)Cleaning Docker artifacts...$(RESET)"
 	docker system prune -f
+
+docker-login: ## Login to container registry
+	@echo "$(GREEN)Logging into container registry...$(RESET)"
+	scripts/registry-auth.sh login
+
+docker-status: ## Check registry authentication status
+	@echo "$(GREEN)Checking registry status...$(RESET)"
+	scripts/registry-auth.sh status
+
+##@ Deployment Automation
+
+deploy: deploy-development ## Deploy to development environment (default)
+
+deploy-development: build-production docker-push ## Deploy to development
+	@echo "$(GREEN)Deploying to development environment...$(RESET)"
+	@$(MAKE) deploy-env ENV=development
+
+deploy-staging: build-production docker-push ## Deploy to staging
+	@echo "$(GREEN)Deploying to staging environment...$(RESET)"
+	@$(MAKE) deploy-env ENV=staging
+
+deploy-production: build-production docker-push ## Deploy to production
+	@echo "$(GREEN)Deploying to production environment...$(RESET)"
+	@$(MAKE) deploy-env ENV=production
+
+deploy-env: ## Deploy to specific environment (requires ENV variable)
+	@if [ -z "$(ENV)" ]; then echo "$(RED)Error: ENV variable required$(RESET)"; exit 1; fi
+	@echo "$(GREEN)Deploying to $(ENV) environment...$(RESET)"
+	scripts/deploy.sh $(ENV)
+
+deploy-local: ## Deploy locally with docker-compose
+	@echo "$(GREEN)Deploying locally with docker-compose...$(RESET)"
+	docker-compose up -d
+
+deploy-local-full: services-stop deploy-local db-migrate ## Full local deployment
+	@echo "$(GREEN)Full local deployment...$(RESET)"
+	@sleep 5
+	$(MAKE) deploy-check-local
+
+deploy-check: ## Check deployment status
+	@echo "$(GREEN)Checking deployment status...$(RESET)"
+	scripts/deploy-check.sh
+
+deploy-check-local: ## Check local deployment status
+	@echo "$(GREEN)Checking local deployment status...$(RESET)"
+	scripts/deploy-check.sh local
+
+deploy-health: ## Check deployment health
+	@echo "$(GREEN)Checking deployment health...$(RESET)"
+	scripts/health-check.sh
+
+deploy-logs: ## View deployment logs
+	@echo "$(GREEN)Viewing deployment logs...$(RESET)"
+	scripts/deploy-logs.sh
+
+deploy-status: ## Show deployment status across environments
+	@echo "$(GREEN)Deployment status:$(RESET)"
+	@echo "$(BLUE)Development:$(RESET)"
+	@scripts/deploy-check.sh development || echo "$(RED)Not deployed$(RESET)"
+	@echo "$(BLUE)Staging:$(RESET)"
+	@scripts/deploy-check.sh staging || echo "$(RED)Not deployed$(RESET)"
+	@echo "$(BLUE)Production:$(RESET)"
+	@scripts/deploy-check.sh production || echo "$(RED)Not deployed$(RESET)"
+
+deploy-rollback: ## Rollback last deployment
+	@echo "$(YELLOW)Rolling back last deployment...$(RESET)"
+	scripts/deploy-rollback.sh
+
+deploy-rollback-to: ## Rollback to specific version (requires VERSION variable)
+	@if [ -z "$(VERSION)" ]; then echo "$(RED)Error: VERSION variable required$(RESET)"; exit 1; fi
+	@echo "$(YELLOW)Rolling back to version $(VERSION)...$(RESET)"
+	scripts/deploy-rollback.sh $(VERSION)
+
+deploy-stop: ## Stop deployment
+	@echo "$(YELLOW)Stopping deployment...$(RESET)"
+	scripts/deploy-stop.sh
+
+deploy-restart: ## Restart deployment
+	@echo "$(GREEN)Restarting deployment...$(RESET)"
+	scripts/deploy-restart.sh
+
+deploy-scale: ## Scale deployment (requires REPLICAS variable)
+	@if [ -z "$(REPLICAS)" ]; then echo "$(RED)Error: REPLICAS variable required$(RESET)"; exit 1; fi
+	@echo "$(GREEN)Scaling deployment to $(REPLICAS) replicas...$(RESET)"
+	scripts/deploy-scale.sh $(REPLICAS)
 
 ##@ Quick Commands
 

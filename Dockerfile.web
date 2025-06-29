@@ -1,0 +1,125 @@
+# Multi-stage Dockerfile for Panhandler Web Interface
+# Builds React app and serves with nginx
+
+# Stage 1: Base image with Bun for building
+FROM oven/bun:1.2-alpine AS base
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    git \
+    && rm -rf /var/cache/apk/*
+
+# Stage 2: Dependencies
+FROM base AS deps
+COPY package.json bunfig.toml ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/web/package.json ./packages/web/
+
+# Install dependencies (skip prepare script)
+RUN bun install --ignore-scripts
+
+# Stage 3: Build React application
+FROM base AS build
+COPY package.json bunfig.toml ./
+COPY packages/ ./packages/
+COPY tsconfig.json ./
+
+# Install all dependencies (including dev, skip prepare script)
+RUN bun install --ignore-scripts
+
+# Build types first (dependency)
+RUN bun run --filter '@panhandler/types' build
+
+# Build web application
+RUN bun run --filter '@panhandler/web' build
+
+# Stage 4: Production nginx server
+FROM nginx:1.25-alpine AS runtime
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S appuser && \
+    adduser -S appuser -u 1001 -G appuser
+
+# Copy built React app
+COPY --from=build --chown=appuser:appuser /app/packages/web/dist /usr/share/nginx/html
+
+# Copy custom nginx configuration
+COPY --chown=appuser:appuser <<EOF /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Security headers
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:; font-src 'self';" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # Handle client-side routing (SPA)
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    # API proxy (if needed)
+    location /api/ {
+        proxy_pass http://agents:3001/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
+# Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"] 

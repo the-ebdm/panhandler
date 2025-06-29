@@ -16,7 +16,16 @@
     "clean": "make clean",
     "setup": "make setup",
     "start": "make start",
-    "prepare": "make build-deps"
+    "prepare": "make build-deps",
+    "docker:build": "scripts/docker-build.sh",
+    "docker:build:agents": "scripts/docker-build.sh agents",
+    "docker:build:web": "scripts/docker-build.sh web",
+    "docker:push": "scripts/docker-build.sh --push --latest all",
+    "docker:push:agents": "scripts/docker-build.sh --push agents",
+    "docker:push:web": "scripts/docker-build.sh --push web",
+    "registry:login": "scripts/registry-auth.sh login",
+    "registry:status": "scripts/registry-auth.sh status",
+    "registry:test": "scripts/registry-auth.sh test"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",

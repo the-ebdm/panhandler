@@ -1,0 +1,81 @@
+# Docker Hub Configuration for Panhandler
+# Container Registry Setup
+
+registry:
+  name: panhandler
+  namespace: panhandler
+  base_url: "https://hub.docker.com"
+  
+images:
+  # Agents service image
+  agents:
+    repository: "panhandler/agents"
+    dockerfile: "Dockerfile"
+    context: "."
+    platforms:
+      - "linux/amd64"
+      - "linux/arm64"
+    tags:
+      - "latest"
+      - "${GIT_COMMIT_SHA:0:7}"
+      - "${VERSION}"
+    build_args:
+      - "NODE_ENV=production"
+      
+  # Web interface image  
+  web:
+    repository: "panhandler/web"
+    dockerfile: "Dockerfile.web"
+    context: "."
+    platforms:
+      - "linux/amd64"
+      - "linux/arm64"
+    tags:
+      - "latest"
+      - "${GIT_COMMIT_SHA:0:7}" 
+      - "${VERSION}"
+    build_args:
+      - "NODE_ENV=production"
+
+security:
+  # Enable Docker Hub vulnerability scanning
+  vulnerability_scanning: true
+  
+  # Security scanning configuration
+  scan_on_push: true
+  
+  # Access control
+  visibility: "public"  # Change to "private" for production
+  
+  # Team access (configure in Docker Hub)
+  teams:
+    - name: "developers"
+      permissions: ["read", "write"]
+    - name: "operators" 
+      permissions: ["read"]
+
+automation:
+  # Automated builds on git push
+  auto_build: true
+  
+  # Build triggers
+  triggers:
+    - branch: "main"
+      tag: "latest"
+    - branch: "develop"
+      tag: "dev"
+    - tag_regex: "v[0-9]+\\.[0-9]+\\.[0-9]+"
+      tag: "${SOURCE_TAG}"
+
+# Image retention policy
+retention:
+  # Keep last 10 versions
+  count: 10
+  
+  # Keep images for 90 days
+  days: 90
+  
+  # Always keep latest and versioned tags
+  keep_tags:
+    - "latest"
+    - "v*" 
