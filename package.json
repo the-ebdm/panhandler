@@ -7,8 +7,13 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter '*' build",
+    "dev": "bun run dev:web",
+    "dev:web": "bun run --filter '@panhandler/web' dev",
+    "dev:all": "bun run --filter '*' dev",
+    "build": "bun run build:deps && bun run --filter '*' build",
+    "build:deps": "bun run --filter '@panhandler/types' build && bun run --filter '@panhandler/core' build",
+    "build:sequential": "bun run --filter '@panhandler/types' build && bun run --filter '@panhandler/core' build && bun run --filter '@panhandler/agents' build && bun run --filter '@panhandler/web' build",
+    "watch": "bun run --filter '@panhandler/types' build && bun run --filter '@panhandler/core' build && bun run --filter '*' dev",
     "test": "bun run --filter '*' test",
     "lint": "bun run --filter '*' lint",
     "type-check": "bun run --filter '*' type-check",

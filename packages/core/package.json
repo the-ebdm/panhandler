@@ -28,7 +28,8 @@
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "langchain": "^0.0.0",
-    "langgraph": "^0.0.0"
+    "langchain": "^0.3.0",
+    "@langchain/langgraph": "^0.3.0",
+    "@langchain/core": "^0.3.0"
   }
 }
