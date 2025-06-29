@@ -131,14 +131,49 @@ The system handles scope creep through a smart escalation mechanism that determi
 
 - Documentation: This agent curates and maintains the project's knowledge base throughout the development lifecycle. It ensures documentation stays current as code evolves, auto-generates API docs and deployment guides from code, reviews for outdated information, maintains consistent formatting and organization, and cross-references related documents and decisions. The documentation agent subscribes to all other agent events via pubsub and continuously updates documentation based on project changes, transforming development work into comprehensive project knowledge.
 
+## Development Setup
+
+### Prerequisites
+- [BunJS](https://bun.sh/) - JavaScript runtime and package manager
+- Git - Version control
+
+### Quick Start
+```bash
+# Clone the repository
+git clone <repository-url>
+cd panhandler
+
+# Set up git hooks (conventional commits, basic validation)
+./scripts/setup-hooks.sh
+
+# Install dependencies (when available)
+bun install
+
+# Start development (when implemented)
+bun run dev
+```
+
+### Git Workflow
+- **Conventional Commits**: Use format `<type>[scope]: <description>`
+- **Pre-commit Checks**: Automatic validation for large files, sensitive data, TypeScript errors
+- **No External Dependencies**: Simple shell scripts, no Husky bullshit
+
+Example commits:
+```bash
+feat: add user authentication system
+fix(api): resolve timeout issues in agent communication
+docs: update installation guide
+refactor(core): simplify agent lifecycle management
+```
+
 ## Architecture
 
-- BunJS / TypeScript for all the software.
-- LangGraph / LangChain for the AI agents.
-- OpenRouter for the AI API, LangChain will just connect to the API
-- Deepstream.io for the pubsub system. It's an open source server inspired by concepts behind financial trading technology. It allows clients and backend services to sync data, send messages and make rpcs at very high speed and scale.
-- Postgres for the relational database.
-- Kubernetes / Helm for the deployment.
+- **BunJS / TypeScript** - All software implementation
+- **LangGraph / LangChain** - AI agent framework
+- **OpenRouter** - AI API integration
+- **Deepstream.io** - Real-time pubsub system inspired by financial trading technology
+- **PostgreSQL** - Relational database
+- **Kubernetes / Helm** - Container orchestration and deployment
 
 ## Future Considerations
 
