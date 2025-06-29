@@ -297,15 +297,15 @@ docker-status: ## Check registry authentication status
 
 deploy: deploy-development ## Deploy to development environment (default)
 
-deploy-development: build-production docker-push ## Deploy to development
+deploy-development: ## Deploy to development
 	@echo "$(GREEN)Deploying to development environment...$(RESET)"
 	@$(MAKE) deploy-env ENV=development
 
-deploy-staging: build-production docker-push ## Deploy to staging
+deploy-staging: ## Deploy to staging
 	@echo "$(GREEN)Deploying to staging environment...$(RESET)"
 	@$(MAKE) deploy-env ENV=staging
 
-deploy-production: build-production docker-push ## Deploy to production
+deploy-production: ## Deploy to production
 	@echo "$(GREEN)Deploying to production environment...$(RESET)"
 	@$(MAKE) deploy-env ENV=production
 
