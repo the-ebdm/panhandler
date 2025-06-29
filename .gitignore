@@ -69,4 +69,6 @@ yarn.lock
 # Misc
 .cache/
 .parcel-cache/
-.vercel/ 
+.vercel/
+
+*.tgz
