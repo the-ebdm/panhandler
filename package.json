@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "make dev",
     "build": "make build",
+    "build:sequential": "make build-sequential",
     "test": "make test",
     "lint": "make lint",
     "type-check": "make type-check",

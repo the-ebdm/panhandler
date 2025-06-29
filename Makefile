@@ -216,10 +216,6 @@ deploy-build: build-production ## Build for deployment
 	@echo "$(GREEN)Building for deployment...$(RESET)"
 	scripts/docker-build.sh
 
-deploy-local: ## Deploy locally
-	@echo "$(GREEN)Deploying locally...$(RESET)"
-	scripts/deploy-local.sh
-
 ##@ Release Management
 
 release-patch: ## Release patch version
