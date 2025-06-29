@@ -1,6 +1,7 @@
 import { AgentConfig, AgentState } from '@panhandler/types';
 // Environment configuration and validation
 export * from './environment';
+export * from './database';
 
 /**
  * Abstract base class for all Panhandler agents

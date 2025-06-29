@@ -1,0 +1,23 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@panhandler/types": [
+        "./packages/types/src"
+      ],
+      "@panhandler/core": [
+        "./packages/core/src"
+      ],
+      "@panhandler/agents": [
+        "./packages/agents/src"
+      ],
+      "@panhandler/web": [
+        "./packages/web/src"
+      ]
+    }
+  },
+  "include": [
+    "./**/*.ts"
+  ]
+}
