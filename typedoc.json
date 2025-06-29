@@ -1,0 +1,28 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Panhandler API Documentation",
+  "out": "docs/api",
+  "entryPoints": [
+    "packages/types/src/index.ts",
+    "packages/core/src/index.ts",
+    "packages/agents/src/index.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "hideGenerator": true,
+  "sort": [
+    "source-order"
+  ],
+  "readme": "README.md",
+  "theme": "default",
+  "treatWarningsAsErrors": false,
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "searchInComments": true
+}

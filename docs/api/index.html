@@ -1,0 +1,182 @@
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>Panhandler API Documentation - v0.1.0</title><meta name="description" content="Documentation for Panhandler API Documentation"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><a href="index.html" class="title">Panhandler API Documentation - v0.1.0</a><div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/><ul role="listbox" id="tsd-search-results"></ul><div id="tsd-search-status" aria-live="polite" aria-atomic="true"><div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h1>Panhandler API Documentation - v0.1.0</h1></div><div class="tsd-panel tsd-typography"><h1 id="panhandler" class="tsd-anchor-link">Panhandler<a href="#panhandler" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>Panhandler is a collection of AI agents that operate based on someone putting money in the pan. It will then take a git repository and build a development plan for it, estimating the cost involved along the way (the cost being the openrouter token cost). Maybe we'll add a small service fee if it's running on our servers.</p>
+<h2 id="methodologies" class="tsd-anchor-link">Methodologies<a href="#methodologies" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The panhandler will focus predominantly on the planning and cost estimation of the operation. The idea is that you want to entice the user to put more money in the pan, so you can continue to do the actual work. Ideally if the user puts in a repo with a very small scope, you can complete the work very quickly and they will either give you a new repo or expand the scope even further. We want to ensure repeat custom so we shouldn't do anything that might decieve the user into thinking that we're doing more work than we are or that we're trying to extract more money than we're actually doing.</p>
+<p>The essential architecture of the panhandler will be a pubsub system that will transform the repository into an ever branching tree of operations. When a new project is created, a planning event will be triggered. This will then be processed by the planner agent. The planner agent will then create a comprehensive documentation structure centered around a <code>docs/</code> directory that serves as the project's knowledge hub. This documentation-centric approach ensures that projects don't just get built, but become maintainable, operable systems with complete knowledge preservation.</p>
+<h2 id="order-of-operations" class="tsd-anchor-link">Order of Operations<a href="#order-of-operations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>User adds a new project</li>
+<li>User puts money in the pan (to start it will be an openrouter key to avoid handling payments)</li>
+<li>Planning event is triggered</li>
+<li>Planner agent creates a structured <a href="http://PLAN.md">PLAN.md</a> file</li>
+<li>Estimator agent estimates the cost of the plan</li>
+</ul>
+<h2 id="documentation-structure" class="tsd-anchor-link">Documentation Structure<a href="#documentation-structure" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>All project knowledge is centralized in a curated <code>docs/</code> directory that evolves throughout the project lifecycle:</p>
+<p><strong>Core Documents</strong>:</p>
+<ul>
+<li><code>docs/PLAN.md</code> - Main project plan with overview and high-level phases</li>
+<li><code>docs/ARCHITECTURE.md</code> - System architecture and design decisions</li>
+</ul>
+<p><strong>Specialized Directories</strong>:</p>
+<ul>
+<li><code>docs/plans/</code> - Detailed plans for individual phases and macro steps</li>
+<li><code>docs/architecture/</code> - Architectural Decision Records (ADRs) and design rationale</li>
+<li><code>docs/guides/</code> - User guides and operational procedures</li>
+<li><code>docs/runbooks/</code> - Step-by-step operational procedures and troubleshooting</li>
+<li><code>docs/deployment/</code> - Environment-specific deployment guides</li>
+<li><code>docs/api/</code> - API documentation and schemas</li>
+<li><code>docs/testing/</code> - Testing strategies and procedures</li>
+<li><code>docs/security/</code> - Security considerations and compliance</li>
+<li><code>docs/performance/</code> - Performance benchmarks and optimization guides</li>
+</ul>
+<p>This structure transforms each project into a comprehensive knowledge base that maintains institutional memory and enables effective handoffs, maintenance, and future development.</p>
+<h2 id="plan-structure" class="tsd-anchor-link">Plan Structure<a href="#plan-structure" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The structured plan will include the following:</p>
+<ul>
+<li>A high level &quot;Project Overview&quot; section in <code>docs/PLAN.md</code> that will include the vision, the scope, and the expected deliverables.</li>
+<li>A &quot;Plan&quot; section that will include the steps to complete the project.
+<ul>
+<li>The plan will be broken down into a series of phases.</li>
+<li>Each phase will be broken down into a macro step.</li>
+<li>The high level plan, phases and macro steps will be the sole responsibility of the planner agent.</li>
+<li>When the planning agent submits the plan, each macro step will have a new event published to the pubsub system.</li>
+<li>The plan expander agent will take the macro step and expand it into detailed plans stored in <code>docs/plans/</code> with a list of smaller steps achievable by the developer agent. Each micro step should be atomic and as minimal in scope as possible. The plan expander agent will be be able to generate any number of micro steps from a macro step. And so must lean on producing more steps rather than overcomplicating any one step. It will also be responsible for generating an order of operations, can steps be run in parallel or do they need to be run in sequence? I want to see a tree graph of the operations and the dependencies between them.
+<ul>
+<li>The cost estimator agent will take a each macro step with the tree of micro steps and estimate the cost of the macro step.</li>
+<li>The timeline agent will take a each macro step with the tree of micro steps and estimate the time to complete the macro step.</li>
+<li>The risk agent will take a each macro step with the tree of micro steps and estimate the risks associated with the macro step.</li>
+<li>The adjudicator agent will take the decisions of the cost estimator, timeline agent, and risk agent and decide if the macro step is worth pursuing or requires further investigation. The adjudicator uses user-configurable weights (cost, timeline, risk) to make transparent decisions rather than opaque AI judgment. Users can adjust these weights based on project priorities (e.g., startup speed vs enterprise risk-aversion) and choose from preset profiles like &quot;Speed-focused&quot;, &quot;Cost-conscious&quot;, or &quot;Risk-averse&quot;. If the macro step is worth pursuing, the developer agent will be triggered to complete the micro steps via the decision tree created by the plan expander agent. This will spin up a number of developer agents to complete the micro steps in parallel albeit some steps may be dependent on other steps.
+<ul>
+<li>The developer agent will take a micro step and complete it.</li>
+<li>The quality agent will take a micro step and assess the quality of the work.</li>
+<li>Every agent will be constantly emiting events to the pubsub system. This will be the central brain of the panhandler system. New agents will be triggered by events from the pubsub system. And some events may cancel the operation of running agents or force them to restart.</li>
+<li>The supervisor agent provides strategic oversight of the entire project, monitoring macro step performance and making high-level decisions about project direction. The frequency and autonomy of supervision scales with the user's budget through a tiered service model.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="tiered-supervision-model" class="tsd-anchor-link">Tiered Supervision Model<a href="#tiered-supervision-model" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The supervisor agent operates at different intensity levels based on the money in the pan and user's cost-sensitivity:</p>
+<p><strong>Premium Tier</strong>: Continuous autonomous supervision</p>
+<ul>
+<li>Supervisor runs constantly, optimizing project in real-time</li>
+<li>Full authority to reallocate resources, adjust priorities, and make strategic pivots</li>
+<li>Proactive optimization for maximum efficiency</li>
+</ul>
+<p><strong>Standard Tier</strong>: Periodic threshold-based supervision</p>
+<ul>
+<li>Supervisor activates when weighted event thresholds are exceeded</li>
+<li>Scheduled health checks (hourly/daily intervals)</li>
+<li>Reactive intervention for significant issues</li>
+</ul>
+<p><strong>Budget Tier</strong>: Emergency-only supervision</p>
+<ul>
+<li>Only critical failures trigger supervisor activation</li>
+<li>Basic health monitoring with user alerts</li>
+<li>Manual decision-making for most issues</li>
+</ul>
+<p>Each event type carries a weight (micro step failure: 10, timeline overrun &gt;50%: 15, cost overrun &gt;25%: 20, quality gate failure: 12, dependency deadlock: 25, stalled progress: 8). The supervisor activates when cumulative weights exceed the user's tier threshold (Budget: 25, Standard: 15, Premium: 5).</p>
+<h2 id="scope-creep-handling" class="tsd-anchor-link">Scope Creep Handling<a href="#scope-creep-handling" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>The system handles scope creep through a smart escalation mechanism that determines whether to handle changes locally or trigger full re-planning:</p>
+<p><strong>Local Handling (Plan Expander Agent)</strong>:</p>
+<ul>
+<li>Additional micro steps don't affect other macro steps</li>
+<li>Total effort increase &lt;25% of original macro step estimate</li>
+<li>No new dependencies introduced to other macro steps</li>
+<li>Same skill sets/technologies required</li>
+<li>Timeline impact contained within current phase</li>
+</ul>
+<p><strong>Escalation to Re-planning (Supervisor → Planner)</strong>:</p>
+<ul>
+<li>Ripple effects across multiple macro steps detected</li>
+<li>Effort increase &gt;25% or new major components discovered</li>
+<li>New external dependencies or technology requirements identified</li>
+<li>Changes affect project deliverables or core architecture</li>
+<li>Budget/timeline impact exceeds user's risk tolerance threshold</li>
+</ul>
+<p><strong>Process Flow</strong>:</p>
+<ol>
+<li>Developer agent detects and reports scope expansion during micro step execution</li>
+<li>Plan Expander assesses impact by mapping dependencies and estimating effort delta</li>
+<li>Decision made based on impact scope: generate additional micro steps locally or escalate</li>
+<li>If escalated, Supervisor calls &quot;down tools&quot; and passes context to Planner for full project re-evaluation</li>
+<li>Re-planning loop: Planner reassesses entire project structure with new information</li>
+</ol>
+<p><strong>Safeguards</strong>:</p>
+<ul>
+<li>Scope creep accumulation tracking across the entire project</li>
+<li>Automatic user notification for all scope changes, regardless of handling level</li>
+<li>Cost gate triggers based on user's budget variance tolerance</li>
+<li>Learning feedback to improve future initial planning accuracy</li>
+</ul>
+<h2 id="agents" class="tsd-anchor-link">Agents<a href="#agents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>
+<p>Planner: This agent will take a git repository and build a development plan for it. Focus around taking a tree of the files and the <a href="http://README.md">README.md</a> and then building a <a href="http://PLAN.md">PLAN.md</a> file that will be used to guide the development of the project. This plan will be created using a basic structure that will allow for future agents to rely on that structure to keep operational.</p>
+</li>
+<li>
+<p>Estimator: This agent will take the <a href="http://PLAN.md">PLAN.md</a> file and estimate the cost of a single step in the plan. This can be spun up in parralel to assess all points in the plan concurrently. As the steps are completed, we can use the data to re-estimate the cost of the remaining steps. This data can eventually be used to fine-tune a new estimation model.</p>
+</li>
+<li>
+<p>Plan expander: This agent will take a macro step in the plan and expand it into a list of smaller steps. This will be used to allow for more detailed planning and estimation.</p>
+</li>
+<li>
+<p>Developer: This agent will take a micro step from the plan expander and complete the actual implementation work. It will execute code changes, file modifications, and any other development tasks required to fulfill the micro step requirements.</p>
+</li>
+<li>
+<p>Quality: This agent will assess the quality of work completed by developer agents. It will check code quality, test coverage, adherence to requirements, and overall implementation standards.</p>
+</li>
+<li>
+<p>Timeline: This agent will estimate the time required to complete macro steps based on the tree of micro steps and their dependencies.</p>
+</li>
+<li>
+<p>Risk: This agent will analyze potential risks associated with macro steps, including technical complexity, dependency risks, and implementation challenges.</p>
+</li>
+<li>
+<p>Adjudicator: This agent uses user-configurable weights to make decisions about whether macro steps should proceed. Users have full control over how cost, timeline, and risk factors are weighted in the decision-making process.</p>
+</li>
+<li>
+<p>Supervisor: This agent provides C-Suite level strategic oversight, monitoring overall project health and making high-level decisions about project direction. It handles feedback loops, scope changes, resource reallocation, and strategic pivots. The supervisor's operational frequency and autonomy scale with the user's budget tier, ensuring cost-conscious users aren't paying for supervision they don't need while premium users get continuous optimization.</p>
+</li>
+<li>
+<p>Documentation: This agent curates and maintains the project's knowledge base throughout the development lifecycle. It ensures documentation stays current as code evolves, auto-generates API docs and deployment guides from code, reviews for outdated information, maintains consistent formatting and organization, and cross-references related documents and decisions. The documentation agent subscribes to all other agent events via pubsub and continuously updates documentation based on project changes, transforming development work into comprehensive project knowledge.</p>
+</li>
+</ul>
+<h2 id="development-setup" class="tsd-anchor-link">Development Setup<a href="#development-setup" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><h3 id="prerequisites" class="tsd-anchor-link">Prerequisites<a href="#prerequisites" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><a href="https://bun.sh/">BunJS</a> - JavaScript runtime and package manager</li>
+<li>Git - Version control</li>
+</ul>
+<h3 id="quick-start" class="tsd-anchor-link">Quick Start<a href="#quick-start" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><pre><code class="bash"><span class="hl-0"># Clone the repository</span><br/><span class="hl-1">git</span><span class="hl-2"> </span><span class="hl-3">clone</span><span class="hl-2"> &lt;</span><span class="hl-3">repository-ur</span><span class="hl-2">l&gt;</span><br/><span class="hl-1">cd</span><span class="hl-2"> </span><span class="hl-3">panhandler</span><br/><br/><span class="hl-0"># Set up git hooks (conventional commits, basic validation)</span><br/><span class="hl-1">./scripts/setup-hooks.sh</span><br/><br/><span class="hl-0"># Install dependencies (when available)</span><br/><span class="hl-1">bun</span><span class="hl-2"> </span><span class="hl-3">install</span><br/><br/><span class="hl-0"># Start development (when implemented)</span><br/><span class="hl-1">bun</span><span class="hl-2"> </span><span class="hl-3">run</span><span class="hl-2"> </span><span class="hl-3">dev</span>
+</code><button type="button">Copy</button></pre>
+
+<h3 id="git-workflow" class="tsd-anchor-link">Git Workflow<a href="#git-workflow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><ul>
+<li><strong>Conventional Commits</strong>: Use format <code>&lt;type&gt;[scope]: &lt;description&gt;</code></li>
+<li><strong>Pre-commit Checks</strong>: Automatic validation for large files, sensitive data, TypeScript errors</li>
+<li><strong>No External Dependencies</strong>: Simple shell scripts, no Husky bullshit</li>
+</ul>
+<p>Example commits:</p>
+<pre><code class="bash"><span class="hl-1">feat:</span><span class="hl-2"> </span><span class="hl-3">add</span><span class="hl-2"> </span><span class="hl-3">user</span><span class="hl-2"> </span><span class="hl-3">authentication</span><span class="hl-2"> </span><span class="hl-3">system</span><br/><span class="hl-1">fix(api</span><span class="hl-2">): resolve timeout issues in agent communication</span><br/><span class="hl-1">docs:</span><span class="hl-2"> </span><span class="hl-3">update</span><span class="hl-2"> </span><span class="hl-3">installation</span><span class="hl-2"> </span><span class="hl-3">guide</span><br/><span class="hl-1">refactor(core</span><span class="hl-2">): simplify agent lifecycle management</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="architecture" class="tsd-anchor-link">Architecture<a href="#architecture" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li><strong>BunJS / TypeScript</strong> - All software implementation</li>
+<li><strong>LangGraph / LangChain</strong> - AI agent framework</li>
+<li><strong>OpenRouter</strong> - AI API integration</li>
+<li><strong><a href="http://Deepstream.io">Deepstream.io</a></strong> - Real-time pubsub system inspired by financial trading technology</li>
+<li><strong>PostgreSQL</strong> - Relational database</li>
+<li><strong>Kubernetes / Helm</strong> - Container orchestration and deployment</li>
+</ul>
+<h2 id="future-considerations" class="tsd-anchor-link">Future Considerations<a href="#future-considerations" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><ul>
+<li>
+<p><strong>ML-Powered Decision Making</strong>: As the system collects data on project outcomes, cost accuracy, and timeline performance, we could train a custom ML model to suggest optimal weight configurations for different project types. This model could learn from successful projects and recommend weight adjustments that historically lead to better outcomes.</p>
+</li>
+<li>
+<p><strong>Adaptive Weights</strong>: The system could automatically adjust weights during project execution based on changing circumstances (e.g., increasing risk weight if multiple micro steps fail).</p>
+</li>
+<li>
+<p><strong>Project Type Classification</strong>: An ML model could automatically classify incoming repositories and suggest appropriate weight presets based on project characteristics (web app, data science, mobile app, etc.).</p>
+</li>
+<li>
+<p><strong>Predictive Cost Modeling</strong>: Use historical execution data to build more accurate cost prediction models that account for project complexity, team size, and technology stack.</p>
+</li>
+<li>
+<p><strong>Quality Feedback Loops</strong>: Implement feedback mechanisms where post-project quality assessments improve future risk and timeline estimations.</p>
+</li>
+</ul>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#panhandler"><span>Panhandler</span></a><ul><li><a href="#methodologies"><span>Methodologies</span></a></li><li><a href="#order-of-operations"><span>Order of <wbr/>Operations</span></a></li><li><a href="#documentation-structure"><span>Documentation <wbr/>Structure</span></a></li><li><a href="#plan-structure"><span>Plan <wbr/>Structure</span></a></li><li><a href="#tiered-supervision-model"><span>Tiered <wbr/>Supervision <wbr/>Model</span></a></li><li><a href="#scope-creep-handling"><span>Scope <wbr/>Creep <wbr/>Handling</span></a></li><li><a href="#agents"><span>Agents</span></a></li><li><a href="#development-setup"><span>Development <wbr/>Setup</span></a></li><li><ul><li><a href="#prerequisites"><span>Prerequisites</span></a></li><li><a href="#quick-start"><span>Quick <wbr/>Start</span></a></li><li><a href="#git-workflow"><span>Git <wbr/>Workflow</span></a></li></ul></li><li><a href="#architecture"><span>Architecture</span></a></li><li><a href="#future-considerations"><span>Future <wbr/>Considerations</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">Panhandler API Documentation - v0.1.0</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer></footer><div class="overlay"></div></body></html>

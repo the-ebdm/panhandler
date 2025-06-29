@@ -52,7 +52,11 @@
     "deploy:local": "scripts/deploy-local.sh",
     "release:patch": "bun version patch && git push --tags",
     "release:minor": "bun version minor && git push --tags",
-    "release:major": "bun version major && git push --tags"
+    "release:major": "bun version major && git push --tags",
+    "docs:generate": "typedoc",
+    "docs:serve": "bun run docs:generate && cd docs/api && python3 -m http.server 8080",
+    "docs:clean": "rm -rf docs/api",
+    "docs:watch": "typedoc --watch"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",
@@ -67,6 +71,8 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "prettier": "^3.6.2",
+    "typedoc": "^0.28.6",
+    "typedoc-plugin-monorepo": "^0.1.0",
     "typescript": "^5.0.0"
   },
   "engines": {
