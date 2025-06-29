@@ -1,0 +1,37 @@
+{
+  "name": "panhandler",
+  "version": "0.1.0",
+  "description": "AI Agent Orchestration System for Autonomous Software Development",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "test": "bun run --filter '*' test",
+    "lint": "bun run --filter '*' lint",
+    "type-check": "bun run --filter '*' type-check",
+    "clean": "bun run --filter '*' clean"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/panhandler.git"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "automation",
+    "software-development",
+    "orchestration"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

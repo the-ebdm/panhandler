@@ -1,0 +1,34 @@
+{
+  "name": "@panhandler/core",
+  "version": "0.1.0",
+  "description": "Core shared agent framework for Panhandler",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev": "bun run build --watch",
+    "build": "bun run build.ts",
+    "test": "bun test",
+    "lint": "eslint src --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@panhandler/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "langchain": "^0.0.0",
+    "langgraph": "^0.0.0"
+  }
+}
