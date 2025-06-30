@@ -5,7 +5,8 @@
 # Global settings
 global:
   imageRegistry: "ghcr.io/the-ebdm"
-  imagePullSecrets: []
+  imagePullSecrets:
+    - name: ghcr-auth
   storageClass: ""
 
 # Panhandler Agents (Backend)
@@ -58,10 +59,10 @@ web:
   replicaCount: 2
   
   image:
-    registry: docker.io
+    registry: ghcr.io/the-ebdm
     repository: panhandler/web
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   
   service:
     type: ClusterIP
@@ -112,6 +113,11 @@ ingress:
 # PostgreSQL (using Bitnami chart)
 postgresql:
   enabled: true
+  image:
+    registry: ghcr.io/the-ebdm
+    repository: postgres
+    tag: "15.4.0-debian-11-r45"
+    pullPolicy: IfNotPresent
   auth:
     enablePostgresUser: true
     postgresPassword: "changeMe123!"
