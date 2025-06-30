@@ -49,8 +49,7 @@ ENVIRONMENTS:
     local               Deploy to local Kubernetes cluster
 
 OPTIONS:
-    --skip-build        Skip building before deployment
-    --skip-push         Skip pushing images (use existing)
+    --skip-rebuild      Skip rebuilding images (use existing)
     --dry-run           Show what would be deployed without executing
     --force             Force deployment without confirmation
     --version VERSION   Deploy specific version
@@ -62,14 +61,14 @@ EXAMPLES:
     $0 development                      # Deploy to development namespace
     $0 production --version v1.2.3     # Deploy specific version to production
     $0 staging --dry-run               # Dry run for staging deployment
-    $0 local --context minikube        # Deploy to local minikube cluster
+    $0 local --skip-rebuild            # Deploy to local without rebuilding images
+    $0 production --force              # Force deploy to production (auto-rebuild)
 EOF
 }
 
 # Default configuration
 ENVIRONMENT=""
-SKIP_BUILD=false
-SKIP_PUSH=false
+SKIP_REBUILD=false
 DRY_RUN=false
 FORCE=false
 VERSION=""
@@ -83,12 +82,8 @@ while [[ $# -gt 0 ]]; do
             ENVIRONMENT="$1"
             shift
             ;;
-        --skip-build)
-            SKIP_BUILD=true
-            shift
-            ;;
-        --skip-push)
-            SKIP_PUSH=true
+        --skip-rebuild)
+            SKIP_REBUILD=true
             shift
             ;;
         --dry-run)
@@ -233,38 +228,38 @@ check_prerequisites() {
     success "Prerequisites check passed"
 }
 
-build_images() {
-    if [[ "$SKIP_BUILD" == "true" ]]; then
-        log "Skipping build step"
+handle_image_rebuild() {
+    if [[ "$SKIP_REBUILD" == "true" ]]; then
+        log "Skipping image rebuild step"
         return
     fi
-    
-    log "Building Docker images for $ENVIRONMENT..."
     
     if [[ "$DRY_RUN" == "true" ]]; then
-        log "Would run: scripts/docker-build.sh --version $DEPLOY_VERSION all"
+        log "Would prompt for image rebuild and call: scripts/docker-build.sh --push --version $DEPLOY_VERSION all"
         return
     fi
     
-    scripts/docker-build.sh --version "$DEPLOY_VERSION" all
-    success "Images built successfully"
-}
-
-push_images() {
-    if [[ "$SKIP_PUSH" == "true" ]]; then
-        log "Skipping push step"
-        return
+    # Check if we should rebuild images
+    local rebuild_choice
+    if [[ "$FORCE" == "true" ]]; then
+        rebuild_choice="y"
+        log "Force mode: rebuilding images automatically"
+    else
+        echo
+        log "Do you want to rebuild and push images before deployment?"
+        log "This will run: scripts/docker-build.sh --push --version $DEPLOY_VERSION all"
+        read -p "Rebuild images? (y/N): " -n 1 -r rebuild_choice
+        echo
     fi
     
-    log "Pushing images to registry..."
-    
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log "Would run: scripts/docker-build.sh --push --version $DEPLOY_VERSION all"
-        return
+    if [[ $rebuild_choice =~ ^[Yy]$ ]]; then
+        log "Rebuilding and pushing images..."
+        scripts/docker-build.sh --push --version "$DEPLOY_VERSION" all
+        success "Images rebuilt and pushed successfully"
+    else
+        log "Skipping image rebuild - using existing images"
+        warning "Make sure the required images exist in the registry with tag: $DEPLOY_VERSION"
     fi
-    
-    scripts/docker-build.sh --push --version "$DEPLOY_VERSION" all
-    success "Images pushed successfully"
 }
 
 deploy_environment() {
@@ -428,8 +423,7 @@ main() {
     confirm_deployment
     
     check_prerequisites
-    build_images
-    push_images
+    handle_image_rebuild
     deploy_environment
     wait_for_health
     post_deploy_actions
