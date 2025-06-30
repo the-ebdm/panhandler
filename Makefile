@@ -296,10 +296,11 @@ docker-status: ## Check registry authentication status
 ##@ Deployment Automation
 
 deploy: deploy-development ## Deploy to development environment (default)
+deploy-and-build: docker-build deploy-development ## Deploy to development environment but first build images
 
 deploy-development: ## Deploy to development
 	@echo "$(GREEN)Deploying to development environment...$(RESET)"
-	@$(MAKE) deploy-env ENV=development ARGS="--force"
+	@$(MAKE) deploy-env ENV=development ARGS="--force --skip-rebuild"
 
 deploy-staging: ## Deploy to staging
 	@echo "$(GREEN)Deploying to staging environment...$(RESET)"

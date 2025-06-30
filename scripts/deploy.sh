@@ -56,6 +56,7 @@ OPTIONS:
     --version VERSION   Deploy specific version
     --namespace NAME    Override default namespace
     --context NAME      Use specific kubectl context
+    --wait              Wait for deployment to complete
     -h, --help          Show this help message
 
 EXAMPLES:
@@ -71,6 +72,7 @@ EOF
 ENVIRONMENT=""
 SKIP_REBUILD=false
 DRY_RUN=false
+WAIT=false
 FORCE=false
 VERSION=""
 NAMESPACE="panhandler"
@@ -97,6 +99,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --force)
             FORCE=true
+            shift
+            ;;
+        --wait)
+            WAIT=true
             shift
             ;;
         --version)
@@ -280,18 +286,17 @@ deploy_environment() {
   helm_cmd="$helm_cmd --set agents.image.tag=$DEPLOY_VERSION"
   helm_cmd="$helm_cmd --set web.image.tag=$DEPLOY_VERSION"
   helm_cmd="$helm_cmd --set-string global.gitCommit=$GIT_COMMIT"
-  helm_cmd="$helm_cmd --wait --timeout=10m"
+  if [[ "$WAIT" == "true" ]]; then
+    log "Waiting for deployment to complete..."
+    helm_cmd="$helm_cmd --wait --timeout=10m"
+  else
+    log "Skipping wait for deployment to complete"
+  fi
   
   if [[ "$DRY_RUN" == "true" ]]; then
-      log "Would run: $helm_cmd --dry-run"
-      helm upgrade --install "$RELEASE_NAME" ./charts/panhandler \
-          --namespace "$NAMESPACE" \
-          --values "$HELM_VALUES_FILE" \
-          --set agents.image.tag="$DEPLOY_VERSION" \
-          --set web.image.tag="$DEPLOY_VERSION" \
-          --set-string global.gitCommit="$GIT_COMMIT" \
-          --dry-run --debug
-      return
+    log "Would run: $helm_cmd --dry-run"
+    eval "$helm_cmd --dry-run --debug"
+    return
   fi
   
   # Update Helm dependencies
@@ -304,13 +309,7 @@ deploy_environment() {
   
   # Deploy with Helm
   log "Running Helm deployment..."
-  helm upgrade --install "$RELEASE_NAME" ./charts/panhandler \
-      --namespace "$NAMESPACE" \
-      --values "$HELM_VALUES_FILE" \
-      --set agents.image.tag="$DEPLOY_VERSION" \
-      --set web.image.tag="$DEPLOY_VERSION" \
-      --set-string global.gitCommit="$GIT_COMMIT" \
-      --wait --timeout=10m
+  eval "$helm_cmd"
   
   success "Deployment completed"
 }
