@@ -4,9 +4,6 @@
 
 # Global settings
 global:
-  imageRegistry: "ghcr.io/the-ebdm"
-  imagePullSecrets:
-    - name: ghcr-auth
   storageClass: ""
 
 # Panhandler Agents (Backend)
@@ -18,7 +15,9 @@ agents:
     registry: ghcr.io/the-ebdm
     repository: panhandler/agents
     tag: "latest"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
+    imagePullSecrets:
+      - name: ghcr-auth
   
   service:
     type: ClusterIP
@@ -63,6 +62,8 @@ web:
     repository: panhandler/web
     tag: "latest"
     pullPolicy: Always
+    imagePullSecrets:
+      - name: ghcr-auth
   
   service:
     type: ClusterIP
@@ -113,16 +114,11 @@ ingress:
 # PostgreSQL (using Bitnami chart)
 postgresql:
   enabled: true
-  image:
-    registry: ghcr.io/the-ebdm
-    repository: postgres
-    tag: "15.4.0-debian-11-r45"
-    pullPolicy: IfNotPresent
   auth:
     enablePostgresUser: true
-    postgresPassword: "changeMe123!"
+    postgresPassword: "IamAVerySecurePassword"
     username: "panhandler"
-    password: "changeMe123!"
+    password: "IamAlsoAVerySecurePassword"
     database: "panhandler"
   primary:
     persistence:
@@ -135,36 +131,12 @@ redis:
   enabled: true
   auth:
     enabled: true
-    password: "changeMe123!"
+    password: "IamAVerySecurePassword"
   architecture: standalone
   master:
     persistence:
       enabled: true
       size: 8Gi
-  # Use GHCR registry for all Redis images
-  image:
-    registry: ghcr.io/the-ebdm
-    repository: bitnami/redis
-  sentinel:
-    image:
-      registry: ghcr.io/the-ebdm
-      repository: bitnami/redis-sentinel
-  metrics:
-    image:
-      registry: ghcr.io/the-ebdm
-      repository: bitnami/redis-exporter
-  volumePermissions:
-    image:
-      registry: ghcr.io/the-ebdm
-      repository: bitnami/os-shell
-  kubectl:
-    image:
-      registry: ghcr.io/the-ebdm
-      repository: bitnami/kubectl
-  # Allow custom images from GHCR
-  global:
-    security:
-      allowInsecureImages: true
 
 # Secrets (externally managed)
 secrets:
