@@ -26,4 +26,4 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: redis.enabled
 annotations:
-  category: AI/ML 
+  category: AI/ML
