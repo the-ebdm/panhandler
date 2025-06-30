@@ -46,9 +46,9 @@ RUN addgroup -g 1001 -S bunjs && \
 WORKDIR /app
 
 # Copy workspace configuration to preserve workspace structure
-COPY --from=deps --chown=bunjs:bunjs /app/package.json ./package.json
-COPY --from=deps --chown=bunjs:bunjs /app/bunfig.toml ./bunfig.toml
-COPY --from=deps --chown=bunjs:bunjs /app/node_modules ./node_modules
+COPY --from=build --chown=bunjs:bunjs /app/package.json ./package.json
+COPY --from=build --chown=bunjs:bunjs /app/bunfig.toml ./bunfig.toml
+COPY --from=build --chown=bunjs:bunjs /app/node_modules ./node_modules
 
 # Copy built packages with their complete structure
 COPY --from=build --chown=bunjs:bunjs /app/packages/types/dist ./packages/types/dist
