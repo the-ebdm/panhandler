@@ -53,6 +53,7 @@ OPTIONS:
     -r, --registry      Registry URL (default: docker.io)
     -n, --namespace     Registry namespace (default: panhandler)
     --no-cache          Build without cache
+    --allow-dirty       Allow building with dirty git state
     --platform          Target platform (default: linux/amd64)
 
 SERVICES:
@@ -70,6 +71,7 @@ EOF
 # Parse command line arguments
 PUSH_IMAGES=false
 TAG_LATEST=false
+ALLOW_DIRTY=false
 NO_CACHE=""
 PLATFORM="linux/amd64"
 SERVICE="all"
@@ -104,6 +106,10 @@ while [[ $# -gt 0 ]]; do
             NO_CACHE="--no-cache"
             shift
             ;;
+        --allow-dirty)
+            ALLOW_DIRTY=true
+            shift
+            ;;
         --platform)
             PLATFORM="$2"
             shift 2
@@ -132,6 +138,10 @@ check_prerequisites() {
     
     if [[ "$PUSH_IMAGES" == "true" ]] && ! docker info | grep -q "Username"; then
         warning "Not logged into Docker registry. Run 'docker login' first."
+    fi
+    
+    if [[ "$ALLOW_DIRTY" == "false" ]] && ! git diff --quiet; then
+        error "Git working directory is dirty. Use --allow-dirty to allow building with dirty state."
     fi
     
     success "Prerequisites check passed"
