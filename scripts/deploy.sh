@@ -50,6 +50,7 @@ ENVIRONMENTS:
 
 OPTIONS:
     --skip-rebuild      Skip rebuilding images (use existing)
+    --skip-update       Skip updating Helm dependencies
     --dry-run           Show what would be deployed without executing
     --force             Force deployment without confirmation
     --version VERSION   Deploy specific version
@@ -84,6 +85,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-rebuild)
             SKIP_REBUILD=true
+            shift
+            ;;
+        --skip-update)
+            SKIP_UPDATE=true
             shift
             ;;
         --dry-run)
@@ -129,6 +134,7 @@ case "$ENVIRONMENT" in
         DEFAULT_NAMESPACE="panhandler-dev"
         RELEASE_NAME="panhandler-dev"
         HEALTH_CHECK_URL="http://localhost:3001/health"
+        SKIP_UPDATE=true
         ;;
     staging)
         HELM_VALUES_FILE="charts/panhandler/values-dev.yaml"  # Use dev values for staging
@@ -136,6 +142,7 @@ case "$ENVIRONMENT" in
         DEFAULT_NAMESPACE="panhandler-staging"
         RELEASE_NAME="panhandler-staging"
         HEALTH_CHECK_URL="https://staging-api.panhandler.ai/health"
+        SKIP_UPDATE=true
         ;;
     production)
         HELM_VALUES_FILE="charts/panhandler/values-prod.yaml"
@@ -150,6 +157,7 @@ case "$ENVIRONMENT" in
         DEFAULT_NAMESPACE="panhandler-local"
         RELEASE_NAME="panhandler-local"
         HEALTH_CHECK_URL="http://localhost:3001/health"
+        SKIP_UPDATE=true
         ;;
     *)
         error "Unknown environment: $ENVIRONMENT"
@@ -287,8 +295,12 @@ deploy_environment() {
   fi
   
   # Update Helm dependencies
-  log "Updating Helm dependencies..."
-  helm dependency update ./charts/panhandler
+  if [[ "$SKIP_UPDATE" != "true" ]]; then
+    log "Updating Helm dependencies..."
+    helm dependency update ./charts/panhandler
+  else
+    log "Skipping Helm dependency update"
+  fi
   
   # Deploy with Helm
   log "Running Helm deployment..."

@@ -299,7 +299,7 @@ deploy: deploy-development ## Deploy to development environment (default)
 
 deploy-development: ## Deploy to development
 	@echo "$(GREEN)Deploying to development environment...$(RESET)"
-	@$(MAKE) deploy-env ENV=development
+	@$(MAKE) deploy-env ENV=development ARGS="--force"
 
 deploy-staging: ## Deploy to staging
 	@echo "$(GREEN)Deploying to staging environment...$(RESET)"
@@ -312,7 +312,7 @@ deploy-production: ## Deploy to production
 deploy-env: ## Deploy to specific environment (requires ENV variable)
 	@if [ -z "$(ENV)" ]; then echo "$(RED)Error: ENV variable required$(RESET)"; exit 1; fi
 	@echo "$(GREEN)Deploying to $(ENV) environment...$(RESET)"
-	scripts/deploy.sh $(ENV)
+	scripts/deploy.sh $(ENV) $(ARGS)
 
 deploy-local: ## Deploy locally with docker-compose
 	@echo "$(GREEN)Deploying locally with docker-compose...$(RESET)"
