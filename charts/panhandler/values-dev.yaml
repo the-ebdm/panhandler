@@ -69,6 +69,30 @@ redis:
   master:
     persistence:
       enabled: false  # No persistence needed for dev
+  # Use GHCR registry for all Redis images
+  image:
+    registry: ghcr.io/the-ebdm
+    repository: bitnami/redis
+  sentinel:
+    image:
+      registry: ghcr.io/the-ebdm
+      repository: bitnami/redis-sentinel
+  metrics:
+    image:
+      registry: ghcr.io/the-ebdm
+      repository: bitnami/redis-exporter
+  volumePermissions:
+    image:
+      registry: ghcr.io/the-ebdm
+      repository: bitnami/os-shell
+  kubectl:
+    image:
+      registry: ghcr.io/the-ebdm
+      repository: bitnami/kubectl
+  # Allow custom images from GHCR
+  global:
+    security:
+      allowInsecureImages: true
 
 # Development secrets (would be provided via kubectl/helm in practice)
 secrets:
